@@ -1,0 +1,196 @@
+<project name="AspectJLibrary">
+
+	<property name="plugin.aspectj" value="true"/>
+
+	<property name="aspectj.dir" location="${env.ASPECTJ_HOME}"/>
+	<property name="aspectj.source.level" value="1.6"/>
+	
+	<path id="aspectjtools.jar">
+		<pathelement location="${aspectj.dir}/lib/aspectjtools.jar"/>
+	</path>
+	<taskdef classpathref="aspectjtools.jar"
+		resource="org/aspectj/antlib.xml"/>
+
+	<path id="global.aspectj.classpath">
+		<path refid="global.compile.classpath"/>
+		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		<!--fileset dir="${lib.aspect.dir}">
+			<include name="*.jar"/>
+		</fileset-->
+	</path>
+	
+	<path id="global.aspectj.unittest.classpath">
+		<path refid="global.unittest.classpath"/>
+		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		<fileset dir="${lib.aspect.dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="global.aspectj.integrationtest.classpath">
+		<path refid="global.integrationtest.classpath"/>
+		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		<fileset dir="${lib.aspect.dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="global.aspectj.acceptancetest.classpath">
+		<path refid="global.acceptancetest.classpath"/>
+		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		<fileset dir="${lib.aspect.dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="global.aspectj.inpath">
+		<fileset dir="${lib.project.dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="global.aspectj.unittest.inpath">
+		<path refid="global.aspectj.inpath"/>
+	</path>
+		
+
+	<path id="global.aspectj.integrationtest.inpath">
+		<path refid="global.aspectj.inpath"/>
+	</path>
+		
+	<path id="global.aspectj.acceptancetest.inpath">
+		<path refid="global.aspectj.inpath"/>
+	</path>
+		
+	<path id="global.aspectj.aspectpath">
+		<fileset dir="${lib.aspect.dir}">
+			<include name="*.jar"></include>
+		</fileset>
+	</path>
+		
+	<path id="global.aspectj.unittest.aspectpath">
+		<path refid="global.aspectj.aspectpath"/>
+		<pathelement location="${build.classes.dir}"/>
+	</path>
+
+	<path id="global.aspectj.integrationtest.aspectpath">
+		<path refid="global.aspectj.aspectpath"/>
+		<pathelement location="${build.classes.dir}"/>
+	</path>
+
+	<path id="global.aspectj.acceptancetest.aspectpath">
+		<path refid="global.aspectj.aspectpath"/>
+		<pathelement location="${build.classes.dir}"/>
+	</path>
+
+	<path id="aspectj.classpath">
+		<path refid="global.aspectj.classpath"/>
+	</path>
+	
+	<path id="aspectj.unittest.classpath">
+		<path refid="global.aspectj.unittest.classpath"/>
+	</path>
+
+	<path id="aspectj.integrationtest.classpath">
+		<path refid="global.aspectj.integrationtest.classpath"/>
+		<pathelement location="${build.integrationtest.dir}"/>
+	</path>
+
+	<path id="aspectj.acceptancetest.classpath">
+		<path refid="aspectj.integrationtest.classpath"/>
+		<pathelement location="${build.acceptancetest.dir}"/>
+	</path>
+
+	<path id="aspectj.inpath">
+		<path refid="global.aspectj.inpath"/>
+	</path>
+	
+	<path id="aspectj.unittest.inpath">
+		<path refid="global.aspectj.unittest.inpath"/>
+	</path>
+	
+	<path id="aspectj.integrationtest.inpath">
+		<path refid="global.aspectj.integrationtest.inpath"/>
+	</path>
+	
+	<path id="aspectj.acceptancetest.inpath">
+		<path refid="global.aspectj.acceptancetest.inpath"/>
+	</path>
+	
+	<path id="aspectj.aspectpath">
+		<path refid="global.aspectj.aspectpath"/>
+	</path>
+	
+	<path id="aspectj.unittest.aspectpath">
+		<path refid="global.aspectj.unittest.aspectpath"/>
+	</path>
+	
+	<path id="aspectj.integrationtest.aspectpath">
+		<path refid="global.aspectj.integrationtest.aspectpath"/>
+	</path>
+	
+	<path id="aspectj.acceptancetest.aspectpath">
+		<path refid="global.aspectj.acceptancetest.aspectpath"/>
+	</path>
+	
+	<target name="compile-aspectj" if="${enable.aspects}">
+		<echo message="Compiling sources with AspectJ compiler and debug=${enable.debug}"/>
+		<iajc destdir="${build.classes.dir}"
+			debug="${enable.debug}"
+			encoding="${source.encoding}"
+			source="${aspectj.source.level}"
+			sourceRootCopyFilter="**/CVS/*,**/*.java,**/*.aj,**/*.clj"
+			inpathDirCopyFilter="**/CVS/*,**/*.java,**/*.aj,**/*.clj,**/*.class,**/*.jar,**/*.txt">
+	  		<src refid="source.path"/>
+			<classpath refid="aspectj.classpath"/>
+	  		<inpath refid="aspectj.inpath"/>
+			<aspectPath refid="aspectj.aspectpath"/>
+		</iajc>
+	</target>
+
+	<target name="compile-aspectj-unittest" if="${compile.aspect.unittest}">
+		<echo message="Compiling unit tests with AspectJ compiler and debug=${enable.debug}"/>
+		<iajc destdir="${build.unittest.dir}"
+			debug="${enable.debug}"
+			encoding="${source.encoding}"
+			source="${aspectj.source.level}"
+			sourceRootCopyFilter="**/CVS/*,**/*.java,**/*.aj"
+			inpathDirCopyFilter="**/CVS/*,**/*.java,**/*.aj,**/*.class,**/*.jar,**/*.txt">
+			<src refid="source.unittest.path"/>
+			<classpath refid="aspectj.unittest.classpath"/>
+	  		<inpath refid="aspectj.unittest.inpath"/>
+			<aspectPath refid="aspectj.unittest.aspectpath"/>
+		</iajc>
+	</target>
+	
+	<target name="compile-aspectj-integrationtest" if="${compile.aspect.integrationtest}">
+		<echo message="Compiling integration tests with AspectJ compiler and debug=${enable.debug}"/>
+		<iajc destdir="${build.integrationtest.dir}"
+			debug="${enable.debug}"
+			encoding="${source.encoding}"
+			source="${aspectj.source.level}"
+			sourceRootCopyFilter="**/CVS/*,**/*.java,**/*.aj"
+			inpathDirCopyFilter="**/CVS/*,**/*.java,**/*.aj,**/*.class,**/*.jar,**/*.txt">
+			<src refid="source.integrationtest.path"/>
+			<classpath refid="aspectj.integrationtest.classpath"/>
+	  		<inpath refid="aspectj.integrationtest.inpath"/>
+			<aspectPath refid="aspectj.integrationtest.aspectpath"/>
+		</iajc>
+	</target>
+	
+	<target name="compile-aspectj-acceptancetest" if="${compile.aspect.fittest}">
+		<echo message="Compiling acceptance tests with AspectJ compiler and debug=${enable.debug}"/>
+		<iajc destdir="${build.acceptancetest.dir}"
+			debug="${compile.debug}"
+			encoding="${source.encoding}"
+			source="${aspectj.source.level}"
+			sourceRootCopyFilter="**/CVS/*,**/*.java,**/*.aj"
+			inpathDirCopyFilter="**/CVS/*,**/*.java,**/*.aj,**/*.class,**/*.jar,**/*.txt">
+			<src refid="source.acceptancetest.path"/>
+			<classpath refid="aspectj.acceptancetest.classpath"/>
+	  		<inpath refid="aspectj.unittest.inpath"/>
+			<aspectPath refid="aspectj.unittest.aspectpath"/>
+		</iajc>
+	</target>
+
+</project>

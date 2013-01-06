@@ -1,0 +1,8 @@
+<project name="TestPlugin">
+
+	<property name="plugin.test" value="true"/>
+
+	<target name="acceptancetest" depends="compile, run-acceptancetest"/>
+	<target name="run-acceptancetest" if="has.acceptancetests"/>
+
+</project>

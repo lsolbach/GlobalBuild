@@ -1,0 +1,68 @@
+<project name="JavaPlugin">
+
+	<property name="plugin.java" value="true"/>
+
+	<property name="javadoc.packagenames" value="org.soulspace.*"/>
+	<property name="java.source.level" value="1.5"/>
+	
+	<target name="compile-java" unless="${compile.aspects}">
+		<echo message="Compiling sources with Java compiler and debug=${enable.debug}"/>
+		<javac destdir="${build.classes.dir}"
+			debug="${enable.debug}"
+			source="${java.source.level}"
+			encoding="${source.encoding}">
+			<src refid="source.path"/>
+			<classpath refid="compile.classpath"/>
+		</javac>
+	</target>
+
+	<target name="compile-java-unittest" if="${compile.java.unittest}">
+		<echo message="Compiling unit tests with Java compiler and debug=${enable.debug}"/>
+		<javac destdir="${build.unittest.dir}"
+			encoding="${source.encoding}"
+			debug="${enable.debug}">
+			<src refid="source.unittest.path"/>
+			<classpath refid="unittest.classpath"/>
+		</javac>				
+		<copy todir="${build.unittest.dir}" >
+			<fileset dir="${source.unittest.dir}" excludes="**/*.java,**/*.aj"/>
+		</copy>
+	</target>
+	
+	<target name="compile-java-integrationtest" if="${compile.java.integrationtest}">
+		<echo message="Compiling integration tests with Java compiler and debug=${enable.debug}"/>
+		<javac destdir="${build.integrationtest.dir}"
+			encoding="${source.encoding}"
+			debug="${enable.debug}">
+			<src refid="source.integrationtest.path"/>
+			<classpath refid="integrationtest.classpath"/>
+		</javac>				
+		<copy todir="${build.integrationtest.dir}" >
+			<fileset dir="${source.integrationtest.dir}" excludes="**/*.java,**/*.aj"/>
+		</copy>
+	</target>
+	
+	<target name="compile-java-acceptancetest" if="${compile.java.acceptancetest}">
+		<echo message="Compiling acceptance tests with Java compiler and debug=${enable.debug}"/>
+		<javac destdir="${build.acceptancetest.dir}"
+			encoding="${source.encoding}"
+			debug="${enable.debug}">
+			<src refid="source.acceptancetest.path"/>
+			<classpath refid="acceptancetest.classpath"/>
+		</javac>				
+		<copy todir="${build.acceptancetest.dir}" >
+			<fileset dir="${source.acceptancetest.dir}" excludes="**/*.java,**/*.aj"/>
+		</copy>
+	</target>
+
+	<!--
+	  -  Global javadoc target
+	  -->
+	<target name="javadoc-global" if="${enable.javadoc}">
+		<javadoc destdir="${doc.javadoc.dir}" sourcepathref="source.path" packagenames="${javadoc.packagenames}"
+			author="true" use="true" version="true"	source="${java.source.level}" failonerror="false">
+			<classpath refid="compile.classpath"/>
+		</javadoc>
+	</target>
+	
+</project>

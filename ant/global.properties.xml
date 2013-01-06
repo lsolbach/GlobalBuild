@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<project name="[GlobalProperties]" default="">
+
+	<!-- import properties -->
+	<property file="build.properties"/>
+	<property environment="env"/>
+	<property name="dev.home.dir" value="${env.DEV_HOME}"/>
+	<property name="global.build.dir" value="${env.GLOBAL_BUILD_HOME}"/>
+	<property file="${global.build.dir}/build.properties"/>
+	
+	<!-- platform checks -->
+	<condition property="is.windows">
+		<os family="windows"/>
+	</condition>
+	<condition property="is.unix">
+		<os family="unix"/>
+	</condition>
+	<condition property="is.mac">
+		<os family="mac"/>
+	</condition>
+
+	<!-- add mac -->
+
+	<!-- global directories -->
+	<property name="global.build.dir" location=".."/>
+	<property name="global.ant.dir" location="${global.build.dir}/ant"/>
+	<property name="global.tools.dir" location="${global.build.dir}/tools"/>
+	<property name="global.cfg.dir" location="${global.build.dir}/cfg"/>
+	<property name="global.report.dir" location="${global.cfg.dir}/report"/>
+	<property name="global.report.html.dir" location="${global.report.dir}/html"/>
+	<property name="global.report.xsl.dir" location="${global.report.dir}/xsl"/>
+
+	<!-- global repositories -->
+	<property name="dev.repository" value="${dev.home.dir}/repositories/development"/>
+	<property name="release.repository" value="${dev.home.dir}/repositories/release"/>
+	<property name="3rdparty.repository" value="${dev.home.dir}/repositories/thirdparty"/>
+	<property name="maven.repository" value="http://repo1.maven.org/maven2"/>
+	
+	
+	<!-- standard project directories -->
+	<property name="project.work.dir" location="${basedir}"/>
+	<property name="source.dir" location="${project.work.dir}/src"/>
+	<property name="source.unittest.dir" location="${project.work.dir}/unittest"/>
+	<property name="source.integrationtest.dir" location="${project.work.dir}/integrationtest"/>
+	<property name="source.fittest.dir" location="${project.work.dir}/fittest"/>
+	<property name="web.dir" location="${project.work.dir}/WebContent"/>	
+	<property name="lib.dir" location="${project.work.dir}/lib"/>
+	<property name="lib.dev.dir" location="${lib.dir}/dev"/>
+	<property name="lib.aspectin.dir" location="${lib.dir}/aspectin"/>
+	<property name="lib.aspect.dir" location="${lib.dir}/aspects"/>
+	<property name="lib.runtime.dir" location="${lib.dir}/runtime"/>
+	<property name="cfg.dir" location="${project.work.dir}/config"/>
+	<property name="build.dir" location="${project.work.dir}/build"/>
+	<property name="build.classes.dir" location="${build.dir}/classes"/>
+	<property name="build.unittest.dir" location="${build.dir}/unittest"/>
+	<property name="build.integrationtest.dir" location="${build.dir}/integrationtest"/>
+	<property name="build.fittest.dir" location="${build.dir}/fittest"/>
+	<property name="build.instrumented.dir" location="${build.dir}/instrumented"/>
+	<property name="build.temp.dir" location="${build.dir}/temp"/>
+	<property name="build.data.dir" value="${build.dir}/data"/>
+	<property name="dist.dir" location="${project.work.dir}/dist"/>
+	<property name="report.dir" location="${build.dir}/report"/>
+	<property name="report.junit.dir" location="${report.dir}/junit"/>
+	<property name="report.junit.html.dir" location="${report.junit.dir}/html"/>
+	<property name="report.dependency.dir" location="${report.dir}/dependency"/>
+	<property name="report.dependency.html.dir" location="${report.dependency.dir}/html"/>
+	<property name="doc.dir" location="${build.dir}/doc"/>
+	<property name="doc.javadoc.dir" location="${doc.dir}/api"/>
+	
+	<!-- standard project properties -->
+	<property name="source.encoding" value="UTF-8"/>
+	<property name="enable.debug" value="false"/>
+	<property name="enable.clojure" value="false"/>
+	<property name="enable.aspects" value="false"/>
+	<property name="enable.javadoc" value="false"/>
+	
+	<!-- standard project paths -->
+	<path id="global.source.path">
+		<pathelement location="${source.dir}"/>
+	</path>
+
+	<path id="global.source.unittest.path">
+		<pathelement location="${source.unittest.dir}"/>
+	</path>
+
+	<path id="global.source.integrationtest.path">
+		<pathelement location="${source.integrationtest.dir}"/>
+	</path>
+
+	<path id="global.source.fittest.path">
+		<pathelement location="${source.fittest.dir}"/>
+	</path>
+
+	<!-- project specific paths (can be redefined) -->
+	<path id="source.path">
+		<path refid="global.source.path"/>
+	</path>
+	
+	<path id="source.unittest.path">
+		<path refid="global.source.unittest.path"/>
+	</path>
+
+	<path id="source.integrationtest.path">
+		<path refid="global.source.integrationtest.path"/>
+	</path>
+
+	<path id="source.fittest.path">
+		<path refid="global.source.fittest.path"/>
+	</path>
+
+	<path id="run.classpath">
+		<path refid="global.run.classpath"/>
+	</path>
+	
+	<path id="unittest.run.classpath">
+		<path refid="global.unittest.run.classpath"/>
+	</path>
+	
+	<!-- standard filesets -->
+	<fileset dir="${source.dir}" id="source.fileset" includes="**/*.java,**/*.aj,**/*.clj"/>
+
+</project>

@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<project name="GlobalBuild" default="show">
+	<description>Global build</description>
+	
+	<!-- import global properties -->
+	<import file="global.properties.xml"/>
+
+	<!-- Global build structure -->
+	<target name="clean" depends="clean-global, clean-local" description="Clean project"/>
+
+	<target name="init" depends="clean, init-global, init-local" description="Initialize project"/>
+
+	<target name="generate" depends="init, generate-local" description="Generate code"/>
+	
+	<target name="compile" depends="generate, compile-global, compile-local" description="Compile code"/>
+	
+	<target name="unittest" depends="compile, unittest-global, unittest-local" description="Unit test code"/>
+
+	<target name="package" depends="unittest, package-global, package-local" description="Package code"/>
+
+	<target name="javadoc" depends="package, javadoc-global, javadoc-local" description="Create API documentation"/>
+	
+	<target name="doc" depends="javadoc, doc-local" description="Create documentation"/>
+	
+	<target name="test" depends="package, test-local" description="Perform tests"/>
+
+	<target name="distribute" depends="test, doc, distribute-global, distribute-local" description="Create project distribution"/>
+
+	<target name="code-quality" depends="package, code-coverage, code-analysis" description="Perform quality checks" />
+	
+	<target name="code-coverage" depends="code-coverage-global, code-coverage-local" description="Measure the test coverage" />
+	
+	<target name="code-analysis" depends="code-analysis-global, code-analysis-local" description="Analyse project"/>
+	
+	<target name="full-build" depends="distribute, code-quality, full-build-local"
+		description="Perform a full clean build including code and coverage analysis and version tagging"/>
+
+	<!-- empty target definitions to be overridden in plugins or the project build file -->
+	<!--target name="clean-global"/-->
+	<target name="clean-local"/>
+	<!--target name="init-global"/-->
+	<target name="init-local"/>
+	<target name="init-dependencies"/>
+	<target name="generate-global"/>
+	<target name="generate-local"/>
+	<target name="compile-global"/>
+	<target name="compile-local"/>
+	<target name="unittest-global"/>
+	<target name="unittest-local"/>
+	<target name="javadoc-global"/>	
+	<target name="javadoc-local"/>
+	<!--target name="doc-global"/-->
+	<target name="doc-local"/>
+	<target name="package-global"/>
+	<target name="package-local"/>
+	<target name="code-analysis-global"/>
+	<target name="code-analysis-local"/>
+	<target name="test-global"/>
+	<target name="test-local"/>
+	<target name="code-coverage-global"/>
+	<target name="code-coverage-local"/>
+	<target name="distribute-global"/>
+	<target name="distribute-local"/>
+	<!--target name="full-build-global"/-->
+	<target name="full-build-local"/>
+	
+	<!-- import plugins -->
+	<import file="${global.ant.dir}/plugins/ant-contrib.xml"/>
+	<import file="${global.ant.dir}/plugins/simple-dependencies.xml"/>
+
+	<import file="${global.ant.dir}/plugins/mdsd.xml"/>
+
+	<import file="${global.ant.dir}/plugins/compile.xml"/>
+	<import file="${global.ant.dir}/plugins/java.xml"/>
+	<import file="${global.ant.dir}/plugins/aspectj.xml"/>
+	<import file="${global.ant.dir}/plugins/clojure.xml"/>
+
+	<import file="${global.ant.dir}/plugins/junit.xml"/>
+
+	<import file="${global.ant.dir}/plugins/package.xml"/>
+	<import file="${global.ant.dir}/plugins/distribute.xml"/>
+	
+	<!--
+	<import file="${global.ant.dir}/plugins/analysis.xml"/>
+	<import file="${global.ant.dir}/plugins/jdepend.xml"/>
+	<import file="${global.ant.dir}/plugins/pmd.xml"/>
+	<import file="${global.ant.dir}/plugins/findbugs.xml"/>
+	<import file="${global.ant.dir}/plugins/checkstyle.xml"/>
+	<import file="${global.ant.dir}/plugins/cobertura.xml"/>
+	-->
+	
+	<!-- TODO conditional imports -->
+	<import file="${global.ant.dir}/plugins/cvs.xml"/>
+
+	<import file="${global.ant.dir}/plugins/dot.xml"/>
+	
+	<target name="show-env" depends="init" description="show the properties of the build environment">
+		<echoproperties/>
+	</target>
+
+	<target name="show" description="Show project info">
+		<echo>Build for ${ant.project.name}</echo>
+	</target>
+	
+
+	<!-- global clean -->
+	<target name="clean-global">
+		<delete dir="${report.dir}" quiet="true"/>
+		<delete dir="${build.dir}" quiet="true"/>
+		<delete dir="${dist.dir}" quiet="true"/>
+		<delete dir="${lib.dir}" quiet="true"/>
+		<!-- add new top level build directories here -->
+	</target>
+	
+	<!-- global initialization -->
+	<target name="init-global" depends="init-reports, init-dependencies">
+		<tstamp>
+			<format property="timestamp.isoformat" pattern="yyyy-MM-dd'T'HH:mm:ss" locale="en"/>
+		</tstamp>
+		<propertyregex property="module.tag" input="${module.version}" regexp="[.]" replace="_" global="true"/>
+	</target>
+	
+	<target name="init-dirs">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${build.classes.dir}"/>
+		<mkdir dir="${build.unittest.dir}"/>
+		<mkdir dir="${build.integrationtest.dir}"/>
+		<mkdir dir="${build.fittest.dir}"/>
+		<mkdir dir="${build.instrumented.dir}"/>
+		<mkdir dir="${build.data.dir}"/>
+		<mkdir dir="${build.temp.dir}" />
+		<mkdir dir="${report.dir}"/>
+		<mkdir dir="${report.dependency.dir}"/>
+		<mkdir dir="${report.dependency.html.dir}"/>
+		<mkdir dir="${doc.dir}"/>
+		<mkdir dir="${doc.javadoc.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<mkdir dir="${lib.dir}"/>
+		<mkdir dir="${lib.runtime.dir}"/>
+		<mkdir dir="${lib.dev.dir}"/>
+		<mkdir dir="${lib.aspect.dir}"/>
+		<mkdir dir="${lib.aspectin.dir}"/>
+	</target>
+
+	<target name="init-reports" depends="init-dirs">
+		<!-- project report -->
+		<copy file="${global.report.html.dir}/project.html"
+			tofile="${report.dir}/index.html"
+		    overwrite="true">
+			<filterset>
+				<filter token="project.name" value="${ant.project.name}"/>
+				<filter token="timestamp" value="${timestamp.datetime}"/>
+				<filter token="report.junit.html.dir" value="${report.junit.html.dir}"/>
+				<filter token="report.coverage.html.dir" value="${report.coverage.html.dir}"/>
+				<filter token="report.jdepend.html.dir" value="${report.jdepend.html.dir}"/>
+				<filter token="report.dependency.html.dir" value="${report.dependency.html.dir}"/>
+				<filter token="report.pmd.html.dir" value="${report.pmd.html.dir}"/>
+				<filter token="report.findbugs.html.dir" value="${report.findbugs.html.dir}"/>
+				<!--filter token="report.checkstyle.html.dir" value="${report.checkstyle.html.dir}"/-->
+			</filterset>
+		</copy>
+		<copy file="${global.report.html.dir}/project.css"
+			tofile="${report.dir}/project.css"/>
+		<!-- project dependency report -->
+		<xslt in="${basedir}/build.dependencies"
+			out="${report.dependency.dir}/dependency.dot"
+			style="${global.report.xsl.dir}/dependency-graph.xsl"/>
+		<antcall target="create-dot">
+			<param name="dot.src.dir" value="${report.dependency.dir}"/>
+			<param name="dot.dest.dir" value="${report.dependency.html.dir}"/>
+		</antcall>
+		<copy file="${global.report.html.dir}/dependency.html" tofile="${report.dependency.html.dir}/dependency.html" overwrite="true">
+			<filterset>
+				<filter token="project.name" value="${ant.project.name}"/>
+				<filter token="report.dependency.html.dir" value="${report.dependency.html.dir}"/>
+			</filterset>
+		</copy>
+	</target>
+
+	<!-- Global acceptance tests -->
+	
+	<target name="zip-module">
+		<zip destfile="../${ant.project.name}-Module.zip">
+			<fileset dir="." excludes="bin,build,dist,lib,generated,backup"/>
+		</zip>
+	</target>
+	
+</project>

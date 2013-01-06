@@ -1,0 +1,55 @@
+<project name="DistributePlugin">
+
+	<property name="plugin.distribute" value="true"/>
+	
+	<target name="distribute-global" depends="distribute-dev"/>
+
+	<target name="distribute-release">
+		<antcall target="distribute-artifacts">
+			<param name="dist.repository" value="${release.repository}"/>
+		</antcall>
+		<antcall target="distribute-release-zip">
+			<param name="dist.repository" value="${release.repository}"/>
+		</antcall>
+	</target>
+
+	<target name="distribute-dev">
+		<antcall target="distribute-artifacts">
+			<param name="dist.repository" value="${dev.repository}"/>
+		</antcall>
+	</target>
+
+	<target name="distribute-artifacts">
+		<property name="artifact.dir" value="${dist.repository}/${module.group}/${ant.project.name}/${module.version}"/>
+		<mkdir dir="${artifact.dir}"/>
+		<copy toDir="${artifact.dir}">
+			<fileset dir="${dist.dir}" includes="*.jar"/>
+		</copy>
+		<copy toDir="${artifact.dir}" failonerror="false">
+			<fileset dir="${basedir}/model" includes="*.xmi"/>
+		</copy>
+		<copy toDir="${artifact.dir}" failonerror="false">
+			<fileset dir="${dist.dir}" includes="*.zip"/>
+		</copy>
+		<copy toDir="${artifact.dir}" file="module.clj" failonerror="false"/>
+		<copy toDir="${artifact.dir}" file="README.md" failonerror="false"/>		
+	</target>
+	
+	<target name="distribute-release-zip">
+		<property name="artifact.dir" value="${dist.repository}/${module.group}/${ant.project.name}/${module.version}"/>
+		<mkdir dir="${artifact.dir}"/>
+		<zip destfile="${dist.dir}/${ant.project.name}-${module.version}.zip">
+			<fileset dir="${dist.dir}" includes="*.jar"/>
+			<fileset dir="${basedir}" includes="*.md"/>
+			<fileset dir="${basedir}" includes="module.clj"/>
+			<fileset dir="${basedir}" includes="*build.dependencies"/>
+			<zipfileset dir="doc" includes="**/*" prefix="doc"/>
+			<zipfileset dir="${lib.runtime.dir}" includes="*.jar" prefix="lib/"/>
+			<zipfileset dir="${lib.aspect.dir}" includes="*.jar" prefix="lib/"/>
+		</zip>
+		<copy file="${dist.dir}/${ant.project.name}-${module.version}.zip"
+			todir="${release.repository}/">
+		</copy>
+	</target>
+
+</project>

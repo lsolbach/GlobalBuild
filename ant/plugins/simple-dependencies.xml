@@ -1,0 +1,59 @@
+<project name="SimpleDependenciesPlugin">
+
+	<property name="plugin.simple-dependencies" value="true"/>
+
+	<target name="init-dependencies">
+		<!-- iterate over the dependencies and call the init-dependency target for each -->
+		<foreach list="${module.dependencies}" delimiter=";" target="init-dependency" param="dependency" trim="true"/>
+	</target>
+	
+	<target name="init-dependency">
+		<!-- split the dependency string into parts -->
+		<propertyregex regexp="([^,]+)" property="dep.project" input="${dependency}" select="\1"/>
+		<propertyregex regexp="([^,]+),([^,]+)" property="dep.module" input="${dependency}" select="\2"/>
+		<propertyregex regexp="([^,]+),([^,]+),([^,]+)" property="dep.version" input="${dependency}" select="\3"/>
+		<propertyregex regexp="([^,]+),([^,]+),([^,]+),([^,]+)" property="dep.type" input="${dependency}" select="\4" defaultValue="runtime"/>
+		<propertyregex regexp="([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)" property="dep.artifact" input="${dependency}" select="\5" defaultValue="${dep.module}"/>
+		<propertyregex regexp="([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)" property="dep.extension" input="${dependency}" select="\6" defaultValue="jar"/>
+		<echo message="Project: ${dep.project}, Module: ${dep.module}, Version: ${dep.version}, Type: ${dep.type}, Artifact: ${dep.artifact}, Extension: ${dep.extension}"/>
+
+		<!-- repository search path: release, thirdparty, development -->
+		<available property="dep.src"
+			value="${release.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"
+			file="${release.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"/>
+		<available property="dep.src"
+			value="${release.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"
+			file="${release.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"/>
+		<available property="dep.src"
+			value="${3rdparty.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"
+			file="${3rdparty.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"/>
+		<available property="dep.src"
+			value="${3rdparty.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"
+			file="${3rdparty.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"/>
+		<available property="dep.src"
+			value="${dev.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"
+			file="${dev.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"/>
+		<available property="dep.src"
+			value="${dev.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"
+			file="${dev.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"/>
+		
+		<!-- TODO copy or unzip depending on type? -->
+		<copy file="${dep.src}"
+			tofile="${lib.dir}/${dep.type}/${dep.module}.${dep.extension}" failonerror="false"/>
+
+		<!-- TODO  -->
+		<!--copy tofile="${lib.dir}/${dep.type}/${dep.module}.${dep.extension}" failonerror="false">
+			<resources>
+				<url url="${maven.repository}/${dep.project}/${dep.module}/${dep.version}/${dep.module}.${dep.extension}"/>
+			</resources>
+		</copy-->
+	</target>
+	
+	<target name="copy-from-url">
+		<copy tofile="${target.file}" failonerror="false">
+			<resources>
+				<url url="${src.repository}/${src.file}"/>
+			</resources>
+		</copy>
+	</target>
+</project>

@@ -1,0 +1,120 @@
+<project name="SVNLibrary">
+
+	<property name="plugin.svn" value="true"/>
+
+	<!-- FIXME implement for real -->	
+	<!--
+	  -	SVN tasks
+	  -->
+	<property name="vcs.tag.module" value="svn-tag-module"/>
+	<property name="vcs.tag.module.dev" value="svn-tag-module-dev"/>
+	<property name="vcs.tag.module.release" value="svn-tag-module-release"/>
+	<property name="vcs.checkout.module" value="svn-checkout-module"/>
+	<property name="vcs.checkout.module.tag" value="svn-checkout-module-tag"/>
+	<property name="vcs.checkout.module.branch" value="svn-checkout-module-branch"/>
+
+	<target name="svn-setup">
+		<svnSetting id="svn.setup"
+			username="${svn.username}"
+			password="${svn.password}"
+			svnkit="true"/>
+	</target>
+	
+	<!--
+	  - module checkin
+	  -->
+	<target name="svn-checkin-module" >
+		<svn refid="svn.setup">
+			<commit message="Commited by the build process."/>	
+		</svn>
+	</target>
+	
+	<!-- 
+	  -	module checkout
+	  -		module
+	  -		vcs.repository
+	  -		vcs.dest.dir
+	  -->
+	<target name="svn-checkout-module" >
+		<svn refid="svn.setup">
+			<checkout url="${vcs.repository}/${module}"
+				destPath="${vcs.dest.dir}/${module}"
+				recurse="true"/>
+		</svn>
+	</target>
+	
+	<!-- 
+	  -	module checkout by tag
+	  -		module
+	  -		module.tag
+	  -		vcs.repository
+	  -		vcs.dest.dir
+	  -->
+	<target name="svn-checkout-module-tag" >
+		<!-- TODO implement -->
+		<svn refid="svn.setup">
+			<checkout url="${vcs.repository}/${module}"
+				destPath="${vcs.dest.dir}/${module}"
+				recurse="true"/>
+		</svn>
+	</target>
+	
+	<!-- 
+	  -	module checkout by branch
+	  -		module
+	  -		module.branch
+	  -		vcs.repository
+	  -		vcs.dest.dir
+	  -->
+	<target name="svn-checkout-module-branch">
+		<!-- TODO implement -->
+		<svn refid="svn.setup">
+			<checkout url="${vcs.repository}/${module}"
+				destPath="${vcs.dest.dir}/${module}"
+				recurse="true"/>
+		</svn>
+	</target>
+	
+	<!-- 
+	  -	module tagging
+	  -		module
+	  -		build.tag
+	  -		vcs.repository
+	  -->
+	<target name="svn-tag-module">
+		<svn refid="svn.setup">
+			<copy srcUrl="${vcs.repository}/${module}"
+				destUrl="${vcs.repository}/${module}/tags/${build.tag}"
+				message="Tagging ${module} with tag ${build.tag} from trunk."/>
+		</svn>
+	</target>
+	
+	<!-- 
+	  -	module tagging for development
+	  -		module
+	  -		build.tag
+	  -		vcs.repository
+	  -->
+	<target name="svn-tag-module-dev">
+		<svn refid="svn.setup">
+			<copy srcUrl="${vcs.repository}/${module}"
+				destUrl="${vcs.repository}/${module}/tags/${build.tag}"
+				message="Tagging ${module} with development tag ${build.tag} from trunk."/>
+		</svn>
+	</target>
+	
+	<!-- 
+	  -	module tagging for release
+	  -		module
+	  -		build.tag
+	  -		vcs.repository
+	  -->
+	<target name="svn-tag-module-release">
+		<svn refid="svn.setup">
+			<copy srcUrl="${vcs.repository}/${module}"
+				destUrl="${vcs.repository}/${module}/tags/${build.tag}"
+				message="Tagging ${module} with release tag ${build.tag} from trunk."/>
+		</svn>
+	</target>
+	
+</project>

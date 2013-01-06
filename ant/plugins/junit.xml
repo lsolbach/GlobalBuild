@@ -1,0 +1,54 @@
+<project name="JUnitPlugin">
+
+	<property name="plugin.junit" value="true"/>
+
+	<target name="junit-init">
+		<mkdir dir="${report.junit.dir}"/>
+		<mkdir dir="${report.junit.html.dir}"/>
+	</target>
+
+	<target name="unittest-global" depends="compile, run-unittest"/>
+	
+	<target name="run-unittest" depends="junit-init" if="has.unittests">
+		<!-- copy non java source files to class directory -->
+		<copy todir="${build.unittest.dir}">
+			<fileset dir="${source.unittest.dir}" excludes="**/*.java,**/*.aj">
+			</fileset>
+		</copy>
+	
+		<!-- perform tests -->
+		<junit fork="yes" forkmode="once" maxmemory="256m"
+			printsummary="false"
+			errorProperty="unittest.error"
+			failureProperty="unittest.error">
+			<!-- TOD: check classpath depending on enable.aspects -->
+			<classpath refid="unittest.run.classpath"/>
+			<sysproperty key="base.dir" value="${basedir}"/>
+			<formatter type="brief" usefile="false"/>
+			<formatter type="xml"/>
+			<batchtest todir="${report.junit.dir}">
+				<fileset dir="${build.unittest.dir}" includes="**/*Test.class"
+					excludes="junit/**/*Test.class,**/Abstract*.class"/>
+			</batchtest>
+		</junit>
+		<!-- generate reports -->
+		<junitreport todir="${report.junit.html.dir}">
+			<fileset dir="${report.junit.dir}" includes="TEST-*.xml"/>
+			<report format="frames" todir="${report.junit.html.dir}"/>
+		</junitreport>
+	
+		<condition property="unittest.fail">
+			<and>
+				<isset property="unittest.error"/>
+				<isset property="unittest.failonerror"/>
+			</and>
+		</condition>
+
+		<fail message="Unit tests failed. See reports for information" if="unittest.fail"/>
+	</target>
+	
+	<!-- Global integration tests -->
+	<target name="integrationtest" depends="compile, run-integrationtest"/>
+	<target name="run-integrationtest"  if="has.integrationtests"/>
+
+</project>

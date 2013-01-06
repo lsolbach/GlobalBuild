@@ -1,0 +1,37 @@
+<project name="ClojurePlugin">
+
+	<property name="plugin.clojure" value="true"/>
+	
+	<fileset dir="${source.dir}" id="clojure.source.fileset" includes="**/*.clj"/>
+	<path id="global.clojure.classpath">
+		<path refid="global.compile.classpath"/>
+		<pathelement location="${build.classes.dir}"/>
+		<pathelement location="${source.dir}"/>
+	</path>
+
+	<path id="clojure.classpath">
+		<path refid="global.clojure.classpath"/>
+	</path>	
+
+	<property name="package_prefix" value=""/>
+	
+	<target name="compile-clojure" if="${enable.clojure}">
+		<pathconvert pathsep=" " property="compile.namespaces">
+			<fileset refid="clojure.source.fileset"/>
+			<chainedmapper>
+				<packagemapper from="${source.dir}/*.clj" to="${package_prefix}*"/>
+				<filtermapper>
+					<!-- The Clojure compiler expects class names with hyphens to be replaced by underscores -->
+					<replacestring from="_" to="-"/>
+				</filtermapper>
+			</chainedmapper>
+		</pathconvert>
+		<echo message="Compiling clojure namespaces ${compile.namespaces}"/>
+		<java classname="clojure.lang.Compile" fork="true" failonerror="true">
+			<classpath refid="clojure.classpath"/>
+			<sysproperty key="clojure.compile.path" value="${build.classes.dir}"/>
+			<arg line="${compile.namespaces}"/>
+		</java>
+	</target>
+
+</project>

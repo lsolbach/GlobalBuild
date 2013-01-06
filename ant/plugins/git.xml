@@ -1,0 +1,14 @@
+<project name="GitPlugin">
+
+	<property name="plugin.git" value="true"/>
+
+	<property name="vcs.tag.module" value="git-tag-module"/>
+	<property name="vcs.tag.module.dev" value="git-tag-module-dev"/>
+	<property name="vcs.tag.module.release" value="git-tag-module-release"/>
+	<property name="vcs.checkout.module" value="git-checkout-module"/>
+	<property name="vcs.checkout.module.tag" value="git-checkout-module-tag"/>
+	<property name="vcs.checkout.module.branch" value="git-checkout-module-branch"/>
+
+	<!-- TODO implement git targets -->
+
+</project>

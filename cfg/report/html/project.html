@@ -1,0 +1,26 @@
+<html>
+<head>
+	<title>Report for @project.name@</title>
+	<link rel="stylesheet" media="screen" type="text/css" href="project.css"/>
+</head>
+<body>
+	<h1>Report for @project.name@</h1>
+	<h2>Last Build</h2>
+	<p>@timestamp@</p>
+	<h2>Unit Test Results</h2>
+	<p><a href="file://@report.junit.html.dir@/index.html">JUnit Report</a></p>
+	<h2>Unit Test Coverage</h2>
+	<p><a href="file://@report.coverage.html.dir@/index.html">Coverage Report</a></p>
+	<h2>Static Code Analysis</h2>
+	<h3>JDepend</h3>
+	<p><a href="file://@report.jdepend.html.dir@/jdepend.html">JDepend Report</a></p>
+	<h3>PMD</h3>
+	<p><a href="file://@report.pmd.html.dir@/pmd.html">PMD Report</a></p>
+	<h3>CPD</h3>
+	<p><a href="file://@report.pmd.html.dir@/cpd.html">CPD Report</a></p>
+	<h3>FindBugs</h3>
+	<p><a href="file://@report.findbugs.html.dir@/index.html">FindBugs Report</a></p>
+	<h3>Checkstyle</h3>
+	<p><a href="file://@report.checkstyle.html.dir@/index.html">CheckStyle Report</a></p>	
+</body>
+</html>

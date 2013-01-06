@@ -1,0 +1,18 @@
+<project name="GlobalBuild" default="distribute">
+
+	<property file="build.properties"/>
+	<property name="dist.dir" location=".."/>
+	<property name="dist.file" location="${dist.dir}/${ant.project.name}-${global.build.version}.zip" />
+
+	<target name="clean">
+		<delete file="${dist.file}" />
+	</target>
+
+	<target name="distribute" depends="package">
+		<zip destfile="${dist.file}">
+			<zipfileset dir="${basedir}" prefix="${ant.project.name}" excludes="src/**, unittest/**, data/**,
+				build/**, bin/**, .project, .classpath, build.xml"/>
+		</zip>
+	</target>
+
+</project>

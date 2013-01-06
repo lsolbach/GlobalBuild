@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<project name="[GlobalProjectBuild]" default="show">
+
+	<target name="info" description="Project info">
+		<echo>Build for ${ant.project.name}</echo>
+		<echoproperties/>
+	</target>
+
+	<!-- module build -->
+	<target name="build-module">
+		<!-- call module build file with project build target -->
+		<ant dir="${module.dir}/${module}" target="${build.target}" inheritall="false">
+			<property file="${basedir}/modulebuild.properties"/>
+			<property name="basedir" location="${module.dir}/${module}" />
+		</ant>
+	</target>
+
+	<!-- module checkout -->
+	<target name="checkout-module" unless="${local.build}">
+		<antcall target="${vcs.checkout.module}">
+			<param name="module" value="${module}" />
+			<param name="vcs.repository" value="${vcs.repository}" />
+			<param name="vcs.dest.dir" value="${module.dir}" />
+		</antcall>
+	</target>
+
+	<!-- module tag -->
+	<target name="tag-module" unless="${local.build}">
+		<antcall target="${vcs.tag.module}">
+			<param name="module" value="${module}" />
+			<param name="vcs.repository" value="${vcs.repository}" />
+			<param name="build.tag" value="${build.tag}" />
+			<param name="vcs.dest.dir" value="${module.dir}" />
+		</antcall>
+	</target>
+
+	<!-- LOCAL build -->
+	<!-- set the properties for a local build -->
+	<target name="setup">
+		<property name="local.build" value="true" />
+		<property name="build.dir" value="${ws.build.dir}" />
+		<property name="module.dir" value="${ws.module.dir}" />
+	</target>
+
+	<!-- clean all modules in project -->
+	<target name="clean" description="call target 'initialize' locally on every module" depends="setup" if="${local.build}">
+		<antcall target="module-all">
+			<param name="module.target" value="build-module" />
+			<param name="build.target" value="clean" />
+		</antcall>
+	</target>
+
+	<!-- initialize all modules in project -->
+	<target name="initialize" description="call target 'initialize' locally on every module" depends="setup" if="${local.build}">
+		<antcall target="module-all">
+			<param name="module.target" value="build-module" />
+			<param name="build.target" value="initialize" />
+		</antcall>
+	</target>
+
+	<!-- compile all modules in project -->
+	<target name="compile" description="call target 'compile' locally on every module" depends="setup" if="${local.build}">
+		<antcall target="module-all">
+			<param name="module.target" value="build-module" />
+			<param name="build.target" value="compile" />
+		</antcall>
+	</target>
+
+	<!-- distribute all modules in project -->
+	<target name="distribute" description="call target 'distribute' locally on every module" depends="setup" if="${local.build}">
+		<antcall target="module-all">
+			<param name="module.target" value="build-module" />
+			<param name="build.target" value="distribute" />
+		</antcall>
+	</target>
+
+	<!-- distribute all modules in project -->
+	<target name="all" description="call target 'distribute' locally on every module" depends="setup" if="${local.build}">
+		<antcall target="module-all">
+			<param name="module.target" value="build-module" />
+			<param name="build.target" value="all" />
+		</antcall>
+	</target>
+
+	<!-- zip all modules in project -->
+	<target name="zip-module" description="call target 'zip-module' on every module" depends="setup" if="${local.build}">
+		<antcall target="module-all">
+			<param name="module.target" value="build-module" />
+			<param name="build.target" value="project-zip" />
+		</antcall>
+	</target>
+
+	<!-- SERVER build -->
+	<!-- set the properties for a clean (nightly) build -->
+	<target name="setup-srv" unless="${local.build}">
+		<property name="local.build" value="false"/>
+		<property name="build.dir" value="${srv.build.dir}" />
+		<property name="module.dir" value="${srv.module.dir}" />
+		<tstamp>
+			<format property="build.date" pattern="yyyyMMdd" />
+		</tstamp>
+		<property name="build.tag" value="I_${build.date}" />
+	</target>
+
+	<!-- clean all modules in project -->
+	<target name="clean-srv" depends="" unless="${local.build}">
+		<delete dir="${module.dir}" />
+		<delete dir="${build.dir}" />
+	</target>
+
+	<!-- initialize all modules in project -->
+	<target name="initialize-srv" depends="clean-srv" unless="${local.build}">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${module.dir}" />
+	</target>
+
+	<!-- build all modules in project -->
+	<target name="all-srv" description="build target 'all' on every module" depends="setup-srv">
+		<antcall target="module-all">
+			<param name="module.target" value="checkout-module" />
+		</antcall>
+		<antcall target="module-all">
+			<param name="module.target" value="build-module" />
+			<param name="build.target" value="all" />
+		</antcall>
+		<antcall target="module-all">
+			<param name="module.target" value="tag-module" />
+		</antcall>
+	</target>
+
+</project>

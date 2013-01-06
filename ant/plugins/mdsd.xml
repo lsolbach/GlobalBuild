@@ -1,0 +1,1636 @@
+<project name="MDSDPlugin" default="">
+
+	<property name="plugin.mdsd" value="true"/>
+	<!-- TODO split into mdsd, soulmda and template-engine -->
+	
+	<property name="soulmda.dir" location="${global.tools.dir}/soulmda"/>
+
+	<property name="generate.dir" location="${project.work.dir}/generated"/>
+	<property name="backup.dir" location="${project.work.dir}/backup"/>
+	<property name="mdsd.dir" value="/home/soulman/devel/workspaces/soulspace/MdaTemplates"/>
+	<property name="mdsd.template.dirs" value="${mdsd.dir}/std-templates2,${mdsd.dir}/templates2,templates"/>
+	<property name="mdsd.profiles.common" value="${mdsd.dir}/profiles/argouml/default-uml14.xmi,${mdsd.dir}/profiles/MDSDProfile.xmi"/>
+	
+	<!-- soulmda code generation framework -->
+	<path id="soulmda.classpath">
+		<fileset dir="${soulmda.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	<taskdef name="soulmda" classname="org.soulspace.mda.generator.ant.MdaGeneratorTask"
+ 		classpathref="soulmda.classpath"/>
+	<taskdef name="mdsd" classname="org.soulspace.modelling.generator.ant.ModelGeneratorTask"
+ 		classpathref="soulmda.classpath"/>
+	<taskdef name="template" classname="org.soulspace.template.ant.TemplateEngineTask"
+ 		classpathref="soulmda.classpath"/>
+
+	<target name="generate-local" depends="generate-post" if="${enable.generation}"/>
+
+	<target name="generate-init" if="${enable.generation}">
+		<mkdir dir="${generate.dir}"/>
+		<mkdir dir="${backup.dir}"/>		
+		<delete>
+			<fileset dir="${backup.dir}"/>
+		</delete>
+		<copy todir="${backup.dir}" overwrite="true">
+			<fileset dir="${generate.dir}"/>
+		</copy>
+		<delete>
+			<fileset dir="${generate.dir}"/>
+		</delete>
+		<mkdir dir="${generate.dir}/src"/>
+		<mkdir dir="${generate.dir}/unittest"/>
+		<mkdir dir="${generate.dir}/integrationtest"/>
+		<mkdir dir="${generate.dir}/fittest"/>
+		<unzip src="model/${ant.project.name}.zargo" dest="model" overwrite="true">
+			<patternset includes="${ant.project.name}.xmi"/>
+		</unzip>
+		<path id="source.path">
+			<path refid="global.source.path"/>
+			<pathelement location="${generate.dir}/src"/>
+		</path>
+		<path id="source.unittest.path">
+			<path refid="global.source.unittest.path"/>
+			<pathelement location="${generate.dir}/unittest"/>
+		</path>
+		<path id="source.integrationtest.path">
+			<path refid="global.source.integrationtest.path"/>
+			<pathelement location="${generate.dir}/integrationtest"/>
+		</path>
+		<path id="source.fittest.path">
+			<path refid="global.source.fittest.path"/>
+			<pathelement location="${generate.dir}/fittest"/>
+		</path>		
+	</target>
+
+	<target name="generate-mdsd" depends="generate-init" if="${enable.generation}">
+		<antcall target="generate-${module.type}">
+			<param name="template.dirs" value="${mdsd.template.dirs}"/>
+			<param name="profiles" value="${mdsd.profiles}"/>
+		</antcall>
+	</target>
+
+	<target name="generate-post" depends="generate-mdsd" if="${enable.generation}">
+		<!-- create UML diagrams from generated .dot files -->
+		<antcall target="create-dot">
+			<param name="dot.src.dir" value="${generate.dir}"/>
+			<param name="dot.dest.dir" value="${generate.dir}"/>
+		</antcall>
+	</target>
+	
+	<target name="generate-library">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<classGenerator name="java/enumeration" 
+					imports="lib,model/lib,java/lib"
+					extension="java"
+					subdir="src"
+					stereotype="enumeration"/>
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,domain/model/lib"
+					extension="java"
+					subdir="src"
+					stereotype="data"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,common/java/metadata"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="data"/>
+				<classGenerator name="aspectj/aspect" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="data"/>
+			</generatorGroup>
+		</mdsd>
+	</target>
+
+	<target name="generate-framework">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<classGenerator name="java/enumeration" 
+					imports="lib,model/lib,java/lib"
+					extension="java"
+					subdir="src"
+					stereotype="enumeration"/>
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,domain/model/lib"
+					extension="java"
+					subdir="src"
+					stereotype="data"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,common/java/metadata"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="data"/>
+				<classGenerator name="aspectj/aspect" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="data"/>
+			</generatorGroup>
+		</mdsd>
+	</target>
+
+	<target name="generate-domain">
+		<!--echoproperties/-->
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<!-- domain layer -->
+				<classGenerator name="java/enumeration" 
+					imports="lib,model/lib,java/lib"
+					extension="java"
+					subdir="src"
+					stereotype="enumeration"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,domain/model/lib,domain/java/lib,domain/java/entity-interface"
+					extension="java"
+					subdir="src"
+					stereotype="entity"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,common/java/metadata,domain/model/lib,domain/java/lib,domain/java/entity-class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="entity"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,domain/model/lib,domain/java/lib,domain/java/value-interface"
+					extension="java"
+					subdir="src"
+					stereotype="value"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,common/java/metadata,domain/model/lib,domain/java/lib,domain/java/value-class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="value"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,common/java/lib,common/java/interface,domain/model/lib,domain/java/lib,domain/java/factory-interface"
+					extension="java"
+					subdir="src"
+					stereotype="factory"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,domain/model/lib,domain/java/lib,domain/java/factory-class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="factory"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,common/java/lib,common/java/interface,domain/model/lib,domain/java/lib,domain/java/repository-interface"
+					extension="java"
+					subdir="src"
+					stereotype="repository"/>
+				<!--classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,common/java/transaction,domain/model/lib,domain/java/lib,domain/java/xstream-storage,domain/java/repository-class"
+					namespaceSuffix="impl"
+					prefix="AbstractXStream"
+					extension="java"
+					subdir="src"
+					stereotype="repository"/-->
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,common/java/transaction,domain/model/lib,domain/java/lib,domain/java/spring-jpa,domain/java/repository-class"
+					namespaceSuffix="impl"
+					prefix="AbstractJpa"
+					extension="java"
+					subdir="src"
+					stereotype="repository"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,common/java/lib,common/java/interface,domain/model/lib,domain/java/lib,domain/java/service-interface"
+					extension="java"
+					subdir="src"
+					stereotype="service"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,common/java/transaction,domain/model/lib,domain/java/lib,domain/java/service-class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="service"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,db/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,common/java/interface,domain/model/lib,domain/java/query-interface"
+					extension="java"
+					subdir="src"
+					stereotype="query"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,db/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,domain/model/lib,domain/java/spring-jpa,domain/java/query-class,domain/java/spring-jpa"
+					namespaceSuffix="impl"
+					extension="java"
+					prefix="Abstract"
+					subdir="src"
+					stereotype="query"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,common/java/interface,domain/java/query-result-interface"
+					extension="java"
+					subdir="src"
+					stereotype="query result"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,domain/java/query-result-class"
+					namespaceSuffix="impl"
+					extension="java"
+					prefix="Abstract"
+					subdir="src"
+					stereotype="query result"/>
+				
+				<packageGenerator name="aspectj/aspect"
+					imports="lib,model/lib,java/lib,java/class,aspectj/lib,common/model/lib,common/java/lib,domain/model/lib,domain/java/lib,domain/aspectj/model-provider-aspect"
+					useNameAsNamespace="true"
+					baseName="ModelProviderAspect"
+					extension="aj"
+					subdir="src"
+					stereotype="model"/>
+
+				<!-- spring configuration -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,domain/model/lib,common/xml/lib,common/config/spring-config,domain/config/spring-config,domain/config/jpa-config"
+					useNameAsNamespace="true"
+					baseName="component-config"
+					extension="xml"
+					subdir="src"
+					stereotype="component"/>
+			</generatorGroup>
+			<generatorGroup>
+				<!-- JPA/Hibernate persistence -->
+				<classGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,java/class,db/lib,common/model/lib,common/xml/lib,domain/model/lib,domain/java/lib,domain/persistence/lib,domain/persistence/hbn-xml"
+					extension="hbn.xml"
+					baseNamespace=""
+					subdir="src"
+					stereotype="entity">
+				</classGenerator>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,common/xml/lib,domain/model/lib,domain/persistence/persistence-xml"
+					baseName="[MODEL_NAME]"
+					suffix="-persistence"
+					extension="xml"
+					baseNamespace="META-INF"
+					subdir="src"
+					stereotype="model">
+				</packageGenerator>
+				<packageGenerator name="domain/persistence/create-tables"
+					imports="lib,model/lib,db/lib,common/model/lib,domain/model/lib,domain/persistence/lib,domain/persistence/ddl,domain/persistence/dialect/h2"
+					useNameAsNamespace="true"
+					baseName="create-tables"
+					extension="sql"
+					subdir="data"
+					stereotype="model">
+				</packageGenerator>
+				<packageGenerator name="domain/persistence/drop-tables"
+					imports="lib,model/lib,db/lib,common/model/lib,domain/model/lib,domain/persistence/lib,domain/persistence/ddl,domain/persistence/dialect/h2"
+					useNameAsNamespace="true"
+					baseName="drop-tables"
+					extension="sql"
+					subdir="data"
+					stereotype="model">
+				</packageGenerator>
+			</generatorGroup>
+			<generatorGroup>
+				<!-- test -->
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,common/java/transaction,domain/model/lib,test/java/junit"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					suffix="Test"
+					extension="java"
+					subdir="integrationtest"
+					stereotype="service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,domain/model/lib,common/xml/lib,common/config/spring-config,test/config/spring-config,test/config/jpa-config"
+					useNameAsNamespace="true"
+					baseName="test-config"
+					extension="xml"
+					subdir="integrationtest"
+					stereotype="component"/>
+			</generatorGroup>
+			<generatorGroup>
+				<!-- doc -->
+				<classGenerator name="dot/dot"
+					imports="lib,model/lib,java/lib,dot/dot,common/model/lib,domain/model/lib,common/doc/dot/lib,common/doc/dot/color,common/doc/dot/class-dot"
+					extension="dot"
+					subdir="doc"
+					stereotype="ALL"/>
+				<modelGenerator name="html/html"
+					imports="lib,model/lib,html/html4,common/doc/html/css,common/doc/html/model"
+					extension="html"
+					subdir="doc"
+					stereotype="NONE"/>
+				<packageGenerator name="common/model/validate"
+					imports="lib,model/lib,common/model/lib,domain/model/lib,common/model/critics,domain/model/critics"
+					useNameAsNamespace="true"
+					baseName="critics"
+					extension="txt"
+					subdir="doc"/>					
+			</generatorGroup>
+		</mdsd>
+	</target>
+
+	<target name="generate-application">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<!-- application layer -->
+				<classGenerator name="java/enum" 
+					imports="lib,model/lib,common/model/lib,java/lib,java/enum"
+					extension="java"
+					subdir="src"
+					stereotype="enumeration"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,common/java/lib,common/java/task,domain/java/lib,domain/java/service-interface"
+					extension="java"
+					subdir="src"
+					stereotype="service"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/task,domain/java/lib,domain/java/service-class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="service"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,common/java/lib,application/java/model-interface"
+					extension="java"
+					subdir="src"
+					stereotype="view model"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,application/java/model-class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="view model"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,common/java/lib,application/java/controller-interface"
+					extension="java"
+					subdir="src"
+					stereotype="view controller"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,application/java/controller-class"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="view controller"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,common/java/interface,application/java/query,application/java/query-interface"
+					extension="java"
+					subdir="src"
+					stereotype="query"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,application/java/query,application/java/query-class"
+					namespaceSuffix="impl"
+					extension="java"
+					prefix="Abstract"
+					subdir="src"
+					stereotype="query"/>
+
+				<classGenerator name="java/interface" 
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,common/java/lib,common/java/interface,application/java/query-result-interface"
+					extension="java"
+					subdir="src"
+					stereotype="query result"/>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,common/java/lib,common/java/class,application/java/query-result-class"
+					namespaceSuffix="impl"
+					extension="java"
+					prefix="Abstract"
+					subdir="src"
+					stereotype="query result"/>
+
+				<!-- spring configuration -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,xml/lib,java/lib,common/model/lib,domain/model/lib,common/xml/lib,common/config/spring-config,application/config/spring-config"
+					useNameAsNamespace="true"
+					baseName="component-config"
+					extension="xml"
+					subdir="src"
+					stereotype="component"/>
+			</generatorGroup>
+			<generatorGroup>
+				<!-- test -->
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,common/java/transaction,domain/model/lib,test/java/junit"
+					namespaceSuffix="impl"
+					prefix="Abstract"
+					suffix="Test"
+					extension="java"
+					subdir="integrationtest"
+					stereotype="service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,xml/lib,java/lib,common/model/lib,common/xml/lib,common/config/spring-config,domain/model/lib,test/config/spring-config,test/config/jpa-config"
+					useNameAsNamespace="true"
+					baseName="test-config"
+					extension="xml"
+					subdir="integrationtest"
+					stereotype="component"/>
+			</generatorGroup>
+		</mdsd>
+	</target>
+
+	<target name="generate-presentation" depends="">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<!-- Plain java stuff -->
+				<classGenerator name="java/enum" 
+					imports="lib,model/lib,java/lib,java/enum"
+					extension="java"
+					subdir="src"
+					stereotype="enumeration">
+				</classGenerator>
+			</generatorGroup>
+			<generatorGroup>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,common/model/lib,common/config/web-xml,presentation/config/mvc-web-xml,presentation/config/webflow-web-xml"
+					baseName="web-fragment"
+					extension="xml"
+					baseNamespace="META-INF"
+					subdir="WebContent"
+					stereotype="presentation">
+				</packageGenerator>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,common/xml/lib,common/config/spring-config,common/config/spring-config,presentation/config/spring-config,presentation/config/webflow-config"
+					baseName="component-config"
+					extension="xml"
+					subdir="src"
+					stereotype="presentation">
+				</packageGenerator>
+			</generatorGroup>
+			<generatorGroup>
+				<!-- JSPs -->
+				<classGenerator name="jsp/jsp"
+					imports="lib,model/lib,jsp/jsp,html/html4,common/model/lib,presentation/jsp/swf,presentation/jsp/spring-mvc,presentation/jsp/crud"
+					baseNamespace="views"
+					extension="jsp"
+					subdir="META-INF/resources"
+					stereotype="view">
+				</classGenerator>
+				
+				<!-- Spring webflow -->
+				<stateMachineGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,presentation/config/webflow"
+					extension="xml"
+					subdir="META-INF/resources"
+					userSection="PA"
+					stereotype="flow">
+				</stateMachineGenerator>
+			</generatorGroup>
+			<!-- TODO spring config for deployment unit (db, ...) -->
+			<!-- TODO property files -->
+		</mdsd>
+	</target>
+
+
+	<target name="generate-webfrontend" depends="">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<!-- Plain java stuff -->
+				<classGenerator name="java/enum" 
+					imports="lib,model/lib,java/lib,java/enum"
+					extension="java"
+					subdir="src"
+					stereotype="enumeration">
+				</classGenerator>
+			</generatorGroup>
+			<generatorGroup>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,common/model/lib,common/config/web-xml,presentation/config/mvc-web-xml,presentation/config/webflow-web-xml"
+					baseName="web"
+					extension="xml"
+					baseNamespace="WEB-INF"
+					subdir="WebContent"
+					stereotype="web application">
+				</packageGenerator>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,common/xml/lib,common/config/spring-config,presentation/config/mvc-config,presentation/config/webflow-config"
+					baseName="component-config"
+					extension="xml"
+					subdir="src"
+					stereotype="web application">
+				</packageGenerator>
+			</generatorGroup>
+			<generatorGroup>
+				<!-- JSPs -->
+				<classGenerator name="jsp/jsp"
+					imports="lib,model/lib,jsp/jsp,html/html4,common/model/lib,presentation/jsp/swf,presentation/jsp/spring-mvc,presentation/jsp/crud"
+					baseNamespace="views"
+					extension="jsp"
+					subdir="WebContent/WEB-INF"
+					stereotype="view">
+				</classGenerator>
+				
+				<!-- Spring webflow 2 -->
+				<stateMachineGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,presentation/config/webflow"
+					extension="xml"
+					subdir="WebContent/WEB-INF"
+					userSection="PA"
+					stereotype="flow">
+				</stateMachineGenerator>
+			</generatorGroup>
+			<!-- TODO spring config for deployment unit (db, ...) -->
+			<!-- TODO property files -->
+		</mdsd>
+	</target>
+
+	<target name="generate-webservice" depends="">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<!-- annotation endpoint -->
+				<classGenerator name="java/class"
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,common/java/lib,common/java/class,common/java/profiling,integration/web-service/lib,integration/web-service/server/java/annotation-endpoint"
+					prefix="Abstract"
+					extension="java"
+					subdir="src"
+					stereotype="ws endpoint"/>
+				<!-- server side types -->
+				<classGenerator name="java/interface"
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,integration/web-service/lib,integration/web-service/server/java/type-interface"
+					extension="java"
+					subdir="src"
+					stereotype="ws type"/>
+				<classGenerator name="java/class"
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,integration/web-service/lib,integration/web-service/server/java/type-class"
+					suffix="Impl"
+					extension="java"
+					namespaceSuffix="impl"
+					subdir="src"
+					stereotype="ws type"/>
+				<!-- server side marshalling -->
+				<packageGenerator name="java/interface"
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,integration/web-service/lib,integration/web-service/java/marshaller-interface"
+					baseName="Marshaller"
+					extension="java"
+					useNameAsNamespace="true"
+					subdir="src"
+					stereotype="web service"/>
+				<packageGenerator name="java/class"
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,integration/web-service/lib,integration/web-service/java/marshaller-class,integration/web-service/java/simple-marshalling"
+					baseName="MarshallerImpl"
+					extension="java"
+					useNameAsNamespace="true"
+					namespaceSuffix="impl"
+					subdir="src"
+					stereotype="web service"/>
+				<!-- server spring configuration -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,common/xml/lib,common/config/spring-config,integration/web-service/lib,integration/web-service/server/config/spring-config"
+					baseName="component-config"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="src"
+					stereotype="web service"/>
+				<!-- server web xml -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,common/model/lib,common/config/web-xml,integration/web-service/lib,integration/web-service/server/config/web-xml"
+					baseName="web"
+					extension="xml"
+					subdir="WebContent"
+					baseNamespace="WEB-INF"
+					stereotype="web service"/>
+				<!-- TODO spring config for deployment unit (db, ...) -->
+				<!-- TODO property files -->
+				<!-- client side types -->
+				<classGenerator name="java/interface"
+					imports="lib,model/lib,java/lib,java/interface,java/bean-interface,common/model/lib,integration/web-service/lib,integration/web-service/client/java/type-interface"
+					extension="java"
+					namespaceSuffix="client"
+					subdir="src"
+					stereotype="ws type"/>
+				<classGenerator name="java/class"
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/model/lib,integration/web-service/lib,integration/web-service/client/java/type-class"
+					suffix="Impl"
+					extension="java"
+					namespaceSuffix="client.impl"
+					subdir="src"
+					stereotype="ws type"/>
+				<!-- client side marshalling -->
+				<packageGenerator name="java/interface"
+					imports="lib,model/lib,java/lib,java/interface,common/model/lib,integration/web-service/lib,integration/web-service/java/marshaller-interface"
+					baseName="Marshaller"
+					extension="java"
+					namespaceSuffix="client"
+					useNameAsNamespace="true"
+					subdir="src"
+					stereotype="web service"/>
+				<packageGenerator name="java/class"
+					imports="lib,model/lib,java/lib,java/class,common/model/lib,integration/web-service/lib,integration/web-service/java/marshaller-class,integration/web-service/java/simple-marshalling"
+					baseName="MarshallerImpl"
+					extension="java"
+					namespaceSuffix="client.impl"
+					useNameAsNamespace="true"
+					subdir="src"
+					stereotype="web service"/>
+				<!-- client spring configuration -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,common/xml/lib,common/config/spring-config,integration/web-service/lib,integration/web-service/client/config/spring-config"
+					baseName="component-config"
+					extension="xml"
+					useNameAsNamespace="true"
+					namespaceSuffix="client"
+					subdir="src"
+					stereotype="web service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,xml/schema,common/model/lib,common/xml/lib,integration/web-service/lib,integration/web-service/server/config/doc-schema"
+					extension="xsd"
+					baseNamespace="schema"
+					subdir="WebContent/WEB-INF"
+					stereotype="web service"/>
+			</generatorGroup>
+		</mdsd>
+	</target>
+
+	<target name="generate-implementations">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<classGenerator name="java/class" 
+					imports="lib,model/lib,java/lib,java/class,java/bean-class,common/java/lib,common/java/class-impl"
+					namespaceSuffix="impl"
+					suffix="Impl"
+					extension="java"
+					subdir="tmp"
+					stereotype="entity,value"/>
+			</generatorGroup>
+		</mdsd>
+	</target>
+
+	<target name="generate-analysis">
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup>
+				<packageGenerator name="txt/txt" 
+					imports="lib,model/lib,requirements/usecases"
+					extension="txt"
+					subdir="tmp"
+					stereotype="use case model"/>
+			</generatorGroup>
+		</mdsd>
+	</target>
+
+	<!-- generate the required projects for the architecture -->
+	<target name="generate-architecture">
+		<property name="generated.models.dir" location="${generate.dir}/models	"/>
+		<property name="generated.modules.dir" location="${generate.dir}/modules"/>
+		<mdsd destdir="${generate.dir}"
+			backupdir="${backup.dir}"
+			templateDirs="${template.dirs}"
+			profiles="${profiles}"
+			modelFile="model/${ant.project.name}.xmi">
+			<generatorGroup description="Library">
+				<!-- Library -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/library/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="library"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/library/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="library"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/library/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="library"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/library/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="library"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/library/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="library"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="library"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="library"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="library"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="library"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="library"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="library"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="application"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="library"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="library"/>
+			</generatorGroup>
+			<generatorGroup description="Framework">
+				<!-- Framework -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/framework/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="framework"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/framework/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="framework"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/framework/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="framework"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/framework/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="framework"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/framework/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="framework"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="framework"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="framework"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="framework"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="framework"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="framework"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="framework"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="framework"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="framework"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="framework"/>
+			</generatorGroup>
+			<generatorGroup description="Application Layer">
+				<!-- Application Layer -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/application/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="application"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/application/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="application"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/application/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="application"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/application/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="application"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/application/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="application"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="application"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12,project/application/model-xmi"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="application"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="application"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="application"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="application"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="application"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="application"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="application"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="application"/>
+			</generatorGroup>
+			<generatorGroup description="Domain Layer">
+				<!-- Domain Layer -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/domain/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="domain"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/domain/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="domain"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/domain/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="domain"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/domain/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="domain"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/domain/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="domain"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="domain"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12,project/domain/model-xmi"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="domain"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="domain"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="domain"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="domain"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="domain"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="domain"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="domain"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="domain"/>
+			</generatorGroup>
+			<generatorGroup description="Integration Layer">
+				<!-- Integration Layer -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/integration/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="integration"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/integration/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="integration"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/integration/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="integration"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/integration/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="integration"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/integration/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="integration"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="integration"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12,project/integration/model-xmi"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="integration"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="integration"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="integration"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="integration"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="integration"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="integration"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="integration"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="integration"/>
+			</generatorGroup>
+			<generatorGroup description="Presentation Layer">
+				<!-- Presentation Layer -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/presentation/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="presentation"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/presentation/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="presentation"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/presentation/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="presentation"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/presentation/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="presentation"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/presentation/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="presentation"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="presentation"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12,project/presentation/model-xmi"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="presentation"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="presentation"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="presentation"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="presentation"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="presentation"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="presentation"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="presentation"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="presentation"/>
+			</generatorGroup>
+			<generatorGroup description="Web Frontend">
+				<!-- Web frontend -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/webfrontend/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/webfrontend/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/webfrontend/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/webfrontend/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/webfrontend/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<!-- generate web project specific files -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/web-xml,project/webfrontend/web-xml"
+					baseName="web"
+					extension="xml"
+					useNameAsNamespace="true"
+					namespaceSuffix="WebContent/WEB-INF"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/web/jsdt-supertype-name"
+					baseName=".settings/org.eclipse.wst.jsdt.ui.superType.name"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/web/jsdt-supertype-container"
+					baseName=".settings/org.eclipse.wst.jsdt.ui.superType.container"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/web/jdt-core-prefs"
+					baseName=".settings/org.eclipse.jdt.core.prefs"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/jsdtscope"
+					baseName=".settings/.jsdtscope"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/wst-common-component"
+					baseName=".settings/org.eclipse.wst.common.component"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/wst-project-facet-core"
+					baseName=".settings/org.eclipse.wst.common.project.facet.core.xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web frontend"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web frontend"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web frontend"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web frontend"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web frontend"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="web frontend"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="web frontend"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="web frontend"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="web frontend"/>
+			</generatorGroup>
+			<generatorGroup description="Web Service">
+				<!-- Web Service -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/build-xml,project/webservice/build-xml"
+					baseName="build"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/dependency-xml,project/webservice/dependency-xml"
+					baseName="dependencies"
+					extension="xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/build-properties,project/webservice/build-properties"
+					baseName="build"
+					extension="properties"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-project,project/webservice/eclipse-project"
+					baseName=".project"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/eclipse-classpath,project/webservice/eclipse-classpath"
+					baseName=".classpath"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/cvs-ignore"
+					baseName=".cvsignore"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<!-- generate web project specific files -->
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/web-xml,project/webservice/web-xml"
+					baseName="web"
+					extension="xml"
+					useNameAsNamespace="true"
+					namespaceSuffix="WebContent/WEB-INF"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/web/jsdt-supertype-container"
+					baseName=".settings/org.eclipse.wst.jsdt.ui.superType.container"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/web/jsdt-supertype-name"
+					baseName=".settings/org.eclipse.wst.jsdt.ui.superType.name"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="text/text"
+					imports="lib,model/lib,project/web/jdt-core-prefs"
+					baseName=".settings/org.eclipse.jdt.core.prefs"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/jsdtscope"
+					baseName=".settings/.jsdtscope"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/wst-common-component"
+					baseName=".settings/org.eclipse.wst.common.component"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<packageGenerator name="xml/xml"
+					imports="lib,model/lib,xml/lib,project/web/wst-project-facet-core"
+					baseName=".settings/org.eclipse.wst.common.project.facet.core.xml"
+					useNameAsNamespace="true"
+					subdir="modules"
+					stereotype="web service"/>
+				<!-- generate argo model -->
+				<packageGenerator name="common/uml/xmi12"
+					imports="lib,model/lib,xml/lib,common/uml/uml14-factory,common/uml/xmi12"
+					extension="xmi"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web service"/>
+				<packageGenerator name="common/uml/argo/todo"
+					imports="lib,model/lib,xml/lib"
+					extension="todo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web service"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib"
+					suffix="_profile"
+					extension="profile"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web service"/>
+				<packageGenerator name="common/uml/argo/argo"
+					imports="lib,model/lib,common/uml/argo/lib"
+					extension="argo"
+					useNameAsNamespace="true"
+					subdir="models"
+					stereotype="web service"/>
+				<!-- generate dummy files in empty dirs -->
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="templates"
+					useNameAsNamespace="true"
+					stereotype="web service"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="src"
+					useNameAsNamespace="true"
+					stereotype="web service"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="generated"
+					useNameAsNamespace="true"
+					stereotype="web service"/>
+				<packageGenerator name="empty"
+					baseName="dummy"
+					extension="txt"
+					subdir="modules"
+					namespaceSuffix="backup"
+					useNameAsNamespace="true"
+					stereotype="web service"/>
+			</generatorGroup>
+		</mdsd>
+
+		<foreach target="package-model" param="model.path" inheritall="true">
+			<path>
+				<dirset dir="${generated.models.dir}">
+	  				<include name="*"/>
+				</dirset>
+			</path>
+		</foreach>	
+		<foreach target="package-module" param="module.path" inheritall="true">
+			<path>
+				<dirset dir="${generated.modules.dir}">
+	  				<include name="*"/>
+				</dirset>
+			</path>
+		</foreach>	
+	</target>
+
+	<target name="package-model">
+		<propertyregex property="model"
+			input="${model.path}"
+			regexp=".*(/|\\)([^(/|\\)]*)"
+			select="\2"
+			casesensitive="false"
+			override="true"	defaultvalue="MODEL"/>	
+		<zip destfile="${generated.modules.dir}/${model}/model/${model}.zargo" basedir="${generated.models.dir}/${model}"/>
+	</target>
+
+	<target name="package-module">
+		<propertyregex property="module"
+			input="${module.path}"
+			regexp=".*(/|\\)([^(/|\\)]*)"
+			select="\2"
+			casesensitive="false"
+			override="true"	defaultvalue="MODULE"/>	
+		<zip destfile="${dist.dir}/${module}.zip" basedir="${generated.modules.dir}/${module}"/>
+	</target>
+
+</project>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project name="GlobalTasks" default="">
+
+	<property name="plugin.ant-contrib" value="true"/>
+
+	<!-- ant contrib dir -->
+	<property name="ant.contrib.dir" location="${global.tools.dir}/ant-contrib"/>
+
+	<!-- ant-contrib tasks -->
+	<path id="ant.contrib.classpath">
+		<fileset dir="${ant.contrib.dir}">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${ant.contrib.dir}/lib">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	<taskdef classpathref="ant.contrib.classpath" resource="net/sf/antcontrib/antlib.xml"/>
+
+</project>

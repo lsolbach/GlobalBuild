@@ -1,0 +1,92 @@
+<project name="CvsPlugin">
+
+	<property name="plugin.cvs" value="true"/>
+
+	<property name="vcs.tag.module" value="cvs-tag-module"/>
+	<property name="vcs.tag.module.dev" value="cvs-tag-module-dev"/>
+	<property name="vcs.tag.module.release" value="cvs-tag-module-release"/>
+	<property name="vcs.checkout.module" value="cvs-checkout-module"/>
+	<property name="vcs.checkout.module.tag" value="cvs-checkout-module-tag"/>
+	<property name="vcs.checkout.module.branch" value="cvs-checkout-module-branch"/>
+
+	<property name="cvs.passfile" location="../.cvspass"/>
+	<property name="cvs.username" value="user.name"/>
+	<property name="cvs.host" value="saturn.soulspace.org"/>
+	<property name="cvs.repository" location="/srv/cvs"/>
+	<property name="cvs.root" value=":pserver:${cvs.username}@${cvs.host}:${cvs.repository}"/>
+
+	<target name="tag-dev-build">
+		<antcall target="cvs-tag-module-dev">
+			<param name="build.tag" value="${module.tag}"/>
+			<param name="vcs.repository" value="${cvs.root}" />
+		</antcall>
+	</target>
+	
+	<!-- 
+	-	module checkout
+	-		module
+	-		vcs.repository
+	-		vcs.dest.dir
+	-->
+	<target name="cvs-checkout-module" >
+		<cvs command="checkout -P" cvsroot="${vcs.repository}" package="${module}"
+			dest="${vcs.dest.dir}" quiet="true" failonerror="yes"/>
+	</target>
+	
+	<!-- 
+	-	module checkout by tag
+	-		module
+	-		module.version
+	-		vcs.repository
+	-		vcs.dest.dir
+	-->
+	<target name="cvs-checkout-module-tag" >
+		<cvs command="checkout" cvsroot="${vcs.repository}" package="${module}"
+			dest="${vcs.dest.dir}" quiet="true" tag="${module.version}"
+			failonerror="yes"/>
+	</target>
+	
+	<!-- 
+	-	module checkout by branch
+	-		module
+	-		module.version
+	-		vcs.repository
+	-		vcs.dest.dir
+	-->
+	<!-- FIXME check implementation-->
+	<target name="cvs-checkout-module-branch" >
+		<cvs command="checkout" cvsroot="${vcs.repository}" package="${module}"
+			dest="${vcs.dest.dir}" quiet="true" tag="${module.version}"
+			failonerror="yes"/>
+	</target>
+	
+	<!-- 
+	-	module tagging
+	-		module
+	-		vcs.repository
+	-		vcs.dest.dir
+	-->
+	<target name="cvs-tag-module">
+		<cvs command="tag -F ${build.tag}" cvsroot="${vcs.repository}" package="${module}"
+			dest="${vcs.dest.dir}" quiet="true"	failonerror="yes"/>
+	</target>
+	
+	<!-- 
+	-	module tagging for development, uses a floating tag
+	-		build.tag
+	-		vcs.repository
+	-->
+	<target name="cvs-tag-module-dev">
+		<cvs command="tag -F D_${build.tag}" cvsroot="${vcs.repository}" failonerror="yes"/>
+	</target>
+	
+	<!-- 
+	-	module tagging for release
+	-		build.tag
+	-		vcs.repository
+	-->
+	<target name="cvs-tag-module-release">
+		<cvs command="tag R_${build.tag}" cvsroot="${vcs.repository}" failonerror="yes"/>
+	</target>
+	
+</project>

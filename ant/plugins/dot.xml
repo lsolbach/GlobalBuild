@@ -1,0 +1,34 @@
+<project name="GraphvisLibrary">
+
+	<property name="plugin.dot" value="true"/>
+
+	<property name="dot.cmd.windows" location="${global.tools.dir}/windows/graphviz/bin/dot"/>
+	<property name="dot.cmd.linux" location="/opt/graphviz/bin/dot"/>
+
+	<target name="init-dot">
+		<condition property="dot.cmd" value="${dot.cmd.linux}">
+			<os family="unix"/>
+		</condition>
+		<condition property="dot.cmd" value="${dot.cmd.windows}">
+			<os family="windows"/>
+		</condition>
+	</target>
+	
+
+	<!--
+	  - convert graphvis dot files into images
+	  -		dot.src.dir directory of the dot files
+	  -		dot.dest.dir directory for the created images
+	  -->
+	<target name="create-dot" depends="init-dot">
+		<apply executable="${dot.cmd}" dest="${dot.dest.dir}">
+			<arg value="-Tpng"/>
+			<srcfile/>
+			<arg value="-o"/>
+			<targetfile/>
+			<fileset dir="${dot.src.dir}" includes="**/*.dot"/>
+			<mapper type="glob" from="*.dot" to="*.png"/>
+		</apply>
+	</target>		
+
+</project>

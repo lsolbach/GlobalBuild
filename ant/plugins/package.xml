@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<project name="BuildLibrary" default="">
+
+	<property name="plugin.package" value="true"/>
+
+	<target name="package-global">
+		<antcall target="package-${module.type}"/>
+	</target>
+
+	<target name="package-library" depends="package-code, package-unittest, package-fittest">
+	</target>
+	
+	<target name="package-framework" depends="package-code, package-unittest, package-integrationtest, package-fittest">
+	</target>
+
+	<target name="package-application" depends="package-code, package-unittest, package-integrationtest, package-fittest">
+	</target>
+
+	<target name="package-domain" depends="package-code, package-unittest, package-integrationtest, package-fittest">
+	</target>
+
+	<target name="package-integration" depends="package-code, package-unittest, package-integrationtest, package-fittest">
+	</target>
+
+	<target name="package-presentation" depends="package-code, package-unittest, package-integrationtest, package-fittest">
+	</target>
+
+	<target name="package-webfrontend" depends="package-code, package-unittest, package-integrationtest, package-fittest">
+		<antcall target="create-wars">
+			<param name="web.context" value="${web.context.name}"/>
+		</antcall>
+	</target>
+
+	<target name="package-appfrontend" depends="package-code, package-unittest, package-fittest">
+	</target>
+
+	<target name="package-consolefrontend" depends="package-code, package-unittest, package-fittest">
+	</target>
+
+	<target name="package-data">
+		<zip destfile="${dist.dir}/${ant.project.name}-${module.version}.zip">
+			<fileset dir="${basedir}" includes="*" excludes="${dist.dir} ${build.dir} ${lib.dir}"/>			
+		</zip>
+	</target>
+
+	<target name="package-webservice" depends="package-code, package-unittest, package-integrationtest, package-fittest">
+		<!-- drop last digit from version for web services -->
+		<propertyregex property="module.version.ws"		
+			input="${module.version}"
+			regexp="(.*)\.[^\.]*"
+			select="\1"
+			casesensitive="false"	
+			defaultvalue="default"/>	
+		<antcall target="create-wars">
+			<param name="web.context" value="${web.context.name}-${module.version.ws}"/>
+		</antcall>
+	</target>
+
+	<target name="package-manifest">
+		<manifest file="${manifest.dir}/MANIFEST.MF">
+			<attribute name="Implementation-Version" value="${module.version}"/>
+			<attribute name="Build-By" value="${user.name}"/>
+			<attribute name="Build-On" value="${timestamp.isoformat}"/>
+			<attribute name="BuildProcess-Version" value="${global.build.version}"/>
+		</manifest>
+	</target>
+
+	<target name="package-code">
+		<antcall target="package-manifest">
+			<param name="manifest.dir" value="${build.dir}"/>
+		</antcall>
+		<jar destfile="${dist.dir}/${ant.project.name}.jar"
+			manifest="${build.dir}/MANIFEST.MF"
+			index="true">
+			<fileset dir="${build.classes.dir}"/>
+		</jar>
+	</target>
+	
+	<target name="package-unittest" if="has.unittests">
+		<antcall target="package-manifest">
+			<param name="manifest.dir" value="${build.unittest.dir}"/>
+		</antcall>
+		<jar destfile="${dist.dir}/${ant.project.name}UnitTest.jar"
+			manifest="${build.unittest.dir}/MANIFEST.MF"
+			index="true">
+			<fileset dir="${build.unittest.dir}"/>
+		</jar>
+	</target>
+	
+	<target name="package-integrationtest" if="has.integrationtests">
+		<antcall target="package-manifest">
+			<param name="manifest.dir" value="${build.integrationtest.dir}"/>
+		</antcall>
+		<jar destfile="${dist.dir}/${ant.project.name}IntegrationTest.jar"
+			manifest="${build.integrationtest.dir}/MANIFEST.MF"
+			index="true">
+			<fileset dir="${build.integrationtest.dir}"/>
+		</jar>
+	</target>
+
+	<target name="package-fittest" if="has.fittests">
+		<antcall target="package-manifest">
+			<param name="manifest.dir" value="${build.fittest.dir}"/>
+		</antcall>
+		<jar destfile="${dist.dir}/${ant.project.name}FitTest.jar"
+			manifest="${build.fittest.dir}/MANIFEST.MF"
+			index="true">
+			<fileset dir="${build.fittest.dir}"/>
+		</jar>
+	</target>	
+
+	<!--
+	-	create all wars for sub-dirs in config-dir
+	-	parameters:
+	-       web.context: web-context-name
+	-->
+	<target name="package-wars" depends="prepare-war-config">
+		<foreach target="package-war" param="war.environment.path">
+			<path>
+				<dirset dir="${cfg.dir}">
+	  				<include name="*"/>
+				</dirset>
+			</path>
+			<param name="war.path" value="${dist.dir}/${web.context}"/>	
+		</foreach>	
+	</target>
+
+	<!--
+	-	prepares all config files for packaging and replaces parameters in config-files
+	-->
+	<target name="prepare-war-config">
+		<!-- copy config to build.dir -->
+		<property name="build.cfg.dir" value="${build.dir}/cfg-temp"/>
+		<delete dir="${build.cfg.dir}"/>
+		<mkdir dir="${build.cfg.dir}"/>
+		<copy todir="${build.cfg.dir}">
+			<fileset dir="${cfg.dir}" includes="**/*"/>
+		</copy>
+		
+		<!-- text replacements in config files -->
+   		<fileset id="cfg-files" dir="${build.cfg.dir}" includes="**/*.properties,**/*.xml, **/*.txt"/>
+
+		<replaceregexp match="#module.version#"
+		               replace="${module.version}"
+		               byline="true">
+			   <fileset refid="cfg-files"/>								
+		</replaceregexp>
+				
+		<replaceregexp match="#module.version.ws#"
+			replace="${module.version.ws}"
+			byline="true">
+			<fileset refid="cfg-files"/>								
+		</replaceregexp>
+
+		<replaceregexp match="#web.context.name#"
+			replace="${web.context.name}"
+			byline="true">
+			<fileset refid="cfg-files"/>								
+		</replaceregexp>	
+
+		<replaceregexp match="#web.context.ws.name#"
+			replace="${web.context.name}-${module.version.ws}"
+			byline="true">
+			<fileset refid="cfg-files"/>								
+		</replaceregexp>
+	</target>
+		
+	<!--
+	-	create war-file
+	-       war.path				war file path (without environment and extension)
+	- 		war.environment.path	path of config files to include
+	-->	
+	<target name="create-war">
+		<antcall target="package-manifest">
+			<param name="manifest.dir" value="${build.dir}"/>
+		</antcall>
+		
+		<!-- extract environments from path -->
+    	<propertyregex property="war.environment.name"		
+			input="${war.environment.path}"
+			regexp=".*(/|\\)([^(/|\\)]*)"
+			select="\2"
+			casesensitive="false"	
+			defaultvalue="default"/>	
+		
+		<war warfile="${war.path}-${war.environment.name}.war" 
+			webxml="${web.generated.dir}/WEB-INF/web.xml"
+			manifest="${build.dir}/MANIFEST.MF"
+			duplicate="preserve">
+			<!-- include config first (duplicate="preserve) -->
+			<classes dir="${build.dir}/config-temp/${war.environment.name}"/>
+			<classes dir="${build.classes.dir}"/>
+			<fileset dir="${web.dir}" excludes="**/META-INF/*.*,**/web.xml"/>
+			<fileset dir="${web.generated.dir}" excludes="**/META-INF/*.*,**/web.xml"/>
+			<lib dir="${lib.runtime.dir}" includes="*.jar"/>		
+			 <lib dir="${lib.project.dir}" includes="*.jar"/>
+		</war>		
+	</target>
+	
+</project>
