@@ -45,7 +45,7 @@
 
 	<target name="package-webservice" depends="package-code, package-unittest, package-integrationtest, package-fittest">
 		<!-- drop last digit from version for web services -->
-		<propertyregex property="module.version.ws"		
+		<propertyregex property="module.version.ws"
 			input="${module.version}"
 			regexp="(.*)\.[^\.]*"
 			select="\1"
@@ -193,7 +193,7 @@
 			<fileset dir="${web.dir}" excludes="**/META-INF/*.*,**/web.xml"/>
 			<fileset dir="${web.generated.dir}" excludes="**/META-INF/*.*,**/web.xml"/>
 			<lib dir="${lib.runtime.dir}" includes="*.jar"/>		
-			 <lib dir="${lib.project.dir}" includes="*.jar"/>
+			<lib dir="${lib.aspectin.dir}" includes="*.jar"/>
 		</war>		
 	</target>
 	

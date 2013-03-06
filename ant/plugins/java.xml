@@ -23,7 +23,7 @@
 			debug="${enable.debug}">
 			<src refid="source.unittest.path"/>
 			<classpath refid="unittest.classpath"/>
-		</javac>				
+		</javac>
 		<copy todir="${build.unittest.dir}" >
 			<fileset dir="${source.unittest.dir}" excludes="**/*.java,**/*.aj"/>
 		</copy>

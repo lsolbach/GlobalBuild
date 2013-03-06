@@ -1,135 +1,13 @@
 <project name="CompilePlugin">
 
-	<path id="global.compile.classpath">
-		<fileset dir="${lib.aspect.dir}">
-			<include name="*.jar"/>
-		</fileset>
-		<fileset dir="${lib.dev.dir}">
-			<include name="*.jar"/>
-		</fileset>
-		<fileset dir="${lib.runtime.dir}">
-			<include name="*.jar"/>
-		</fileset>
-	</path>
-
-	<path id="global.unittest.classpath">
-		<pathelement location="${build.classes.dir}"/>
-		<path refid="compile.classpath"/>
-	</path>
-			
-	<path id="global.integrationtest.classpath">
-		<pathelement location="${build.classes.dir}"/>
-		<path refid="compile.classpath"/>
-	</path>
-			
-	<path id="global.acceptancetest.classpath">
-		<pathelement location="${build.classes.dir}"/>
-		<path refid="compile.classpath"/>
-	</path>
-	
-	<path id="global.run.classpath">
-		<path refid="global.compile.classpath"/>
-		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
-		<pathelement location="${build.classes.dir}"/>
-	</path>
-	
-	<path id="global.unittest.run.classpath">
-		<path refid="global.unittest.classpath"/>
-		<pathelement location="${build.unittest.dir}"/>
-		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
-	</path>
-	
-	<path id="global.integrationtest.run.classpath">
-		<path refid="global.integrationtest.classpath"/>
-		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
-		<pathelement location="${build.integrationtest.dir}"/>
-	</path>
-	
-	<path id="global.acceptancetest.run.classpath">
-		<path refid="global.acceptancetest.classpath"/>
-		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
-		<pathelement location="${build.fittest.dir}"/>
-	</path>
-	
-	<path id="compile.classpath">
-		<path refid="global.compile.classpath"/>
-	</path>
-
-	<path id="unittest.classpath">
-		<path refid="global.unittest.classpath"/>
-	</path>
-
-	<path id="integrationtest.classpath">
-		<path refid="global.integrationtest.classpath"/>
-	</path>
-
-	<path id="acceptancetest.classpath">
-		<path refid="global.acceptancetest.run.classpath"/>
-		<pathelement location="${build.integrationtest.dir}"/>
-	</path>
-
 	<target name="compile-global"
-	        depends="compile-setup, compile-code, compile-unittest, compile-integrationtest, compile-acceptancetest">
+	        depends="compile-code, compile-unittest, compile-integrationtest, compile-acceptancetest">
 		<!-- copy non java source files to class directory -->
 		<copy todir="${build.classes.dir}" >
 			<fileset dir="${source.dir}" excludes="**/*.java,**/*.aj,**/*.clj"/>
 		</copy>
 	</target>
 	
-	<target name="compile-setup">
-		<condition property="compile.aspects">
-			<equals arg1="${enable.aspects}" arg2="true"/>
-		</condition>
-		<condition property="compile.java">
-			<equals arg1="${enable.aspects}" arg2="false"/>
-		</condition>
-		
-		<!-- setup unit tests --> 
-		<available file="${source.unittest.dir}" type="dir" property="${has.unittests}"/>
-		<condition property="compile.aspect.unittest">
-			<and>
-				<equals arg1="${has.unittests}" arg2="true"/>
-				<equals arg1="${enable.aspects}" arg2="true"/>
-			</and>
-		</condition>
-		<condition property="compile.java.unittest">
-			<and>
-				<equals arg1="${has.unittests}" arg2="true"/>
-				<equals arg1="${enable.aspects}" arg2="false"/>
-			</and>
-		</condition>
-
-		<!-- setup integration tests --> 
-		<available file="${source.integrationtest.dir}" type="dir" property="${has.integrationtests}"/>
-		<condition property="compile.aspect.integrationtest">
-			<and>
-				<equals arg1="${has.integrationtests}" arg2="true"/>
-				<equals arg1="${enable.aspects}" arg2="true"/>
-			</and>
-		</condition>
-		<condition property="compile.java.integrationtest">
-			<and>
-				<equals arg1="${has.integrationtests}" arg2="true"/>
-				<equals arg1="${enable.aspects}" arg2="false"/>
-			</and>
-		</condition>
-
-		<!-- setup acceptance tests -->
-		<available file="${source.acceptancetest.dir}" type="dir" property="${has.acceptancetests}"/>
-		<condition property="compile.aspect.acceptancetest">
-			<and>
-				<equals arg1="${has.acceptancetests}" arg2="true"/>
-				<equals arg1="${enable.aspects}" arg2="true"/>
-			</and>
-		</condition>
-		<condition property="compile.java.acceptancetest">
-			<and>
-				<equals arg1="${has.acceptancetests}" arg2="true"/>
-				<equals arg1="${enable.aspects}" arg2="false"/>
-			</and>
-		</condition>
-	</target>
-
 	<target name="compile-code"
 	        depends="compile-java, compile-aspectj, compile-clojure, compile-copy-generated"/>
 	<target name="compile-unittest"

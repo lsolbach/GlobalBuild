@@ -1,0 +1,244 @@
+<project name="InitPlugin">
+
+	<!-- global initialization -->
+	<target name="init-global" depends="init-dirs, init-properties, init-paths, init-reports">
+		<tstamp>
+			<format property="timestamp.isoformat" pattern="yyyy-MM-dd'T'HH:mm:ss" locale="en"/>
+		</tstamp>
+		<propertyregex property="module.tag" input="${module.version}" regexp="[.]" replace="_" global="true"/>
+	</target>
+	
+	<target name="init-dirs">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${build.classes.dir}"/>
+		<mkdir dir="${build.unittest.dir}"/>
+		<mkdir dir="${build.integrationtest.dir}"/>
+		<mkdir dir="${build.fittest.dir}"/>
+		<mkdir dir="${build.instrumented.dir}"/>
+		<mkdir dir="${build.data.dir}"/>
+		<mkdir dir="${build.temp.dir}" />
+		<mkdir dir="${report.dir}"/>
+		<mkdir dir="${report.dependency.dir}"/>
+		<mkdir dir="${report.dependency.html.dir}"/>
+		<mkdir dir="${doc.dir}"/>
+		<mkdir dir="${doc.javadoc.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<mkdir dir="${lib.dir}"/>
+		<mkdir dir="${lib.runtime.dir}"/>
+		<mkdir dir="${lib.dev.dir}"/>
+		<mkdir dir="${lib.aspect.dir}"/>
+		<mkdir dir="${lib.aspectin.dir}"/>
+	</target>
+
+	<target name="init-global-paths" depends="init-dirs">
+		<path id="global.compile.classpath">
+			<fileset dir="${lib.dev.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${lib.runtime.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</path>
+	
+		<path id="global.unittest.classpath">
+			<pathelement location="${build.classes.dir}"/>
+			<path refid="global.compile.classpath"/>
+		</path>
+				
+		<path id="global.integrationtest.classpath">
+			<pathelement location="${build.classes.dir}"/>
+			<path refid="global.compile.classpath"/>
+		</path>
+				
+		<path id="global.acceptancetest.classpath">
+			<pathelement location="${build.classes.dir}"/>
+			<path refid="global.compile.classpath"/>
+		</path>
+		
+		<path id="global.run.classpath">
+			<path refid="global.compile.classpath"/>
+			<pathelement location="${build.classes.dir}"/>
+		</path>
+		
+		<path id="global.unittest.run.classpath">
+			<path refid="global.unittest.classpath"/>
+			<pathelement location="${build.unittest.dir}"/>
+			<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		</path>
+		
+		<path id="global.integrationtest.run.classpath">
+			<path refid="global.integrationtest.classpath"/>
+			<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+			<pathelement location="${build.integrationtest.dir}"/>
+		</path>
+		
+		<path id="global.acceptancetest.run.classpath">
+			<path refid="global.acceptancetest.classpath"/>
+			<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+			<pathelement location="${build.fittest.dir}"/>
+		</path>
+	</target>
+
+	<target name="init-properties" depends="init-global-paths">
+		<condition property="compile.aspects">
+			<equals arg1="${enable.aspects}" arg2="true"/>
+		</condition>
+		<condition property="compile.java">
+			<equals arg1="${enable.aspects}" arg2="false"/>
+		</condition>
+		
+		<!-- setup unit tests -->
+		<available file="${source.unittest.dir}" type="dir" property="has.unittests"/>
+		<condition property="compile.aspect.unittest">
+			<and>
+				<equals arg1="${has.unittests}" arg2="true"/>
+				<equals arg1="${enable.aspects}" arg2="true"/>
+			</and>
+		</condition>
+		<condition property="compile.java.unittest">
+			<and>
+				<equals arg1="${has.unittests}" arg2="true"/>
+				<equals arg1="${enable.aspects}" arg2="false"/>
+			</and>
+		</condition>
+
+		<!-- setup integration tests -->
+		<available file="${source.integrationtest.dir}" type="dir" property="has.integrationtests"/>
+		<condition property="compile.aspect.integrationtest">
+			<and>
+				<equals arg1="${has.integrationtests}" arg2="true"/>
+				<equals arg1="${enable.aspects}" arg2="true"/>
+			</and>
+		</condition>
+		<condition property="compile.java.integrationtest">
+			<and>
+				<equals arg1="${has.integrationtests}" arg2="true"/>
+				<equals arg1="${enable.aspects}" arg2="false"/>
+			</and>
+		</condition>
+
+		<!-- setup acceptance tests -->
+		<available file="${source.acceptancetest.dir}" type="dir" property="has.acceptancetests"/>
+		<condition property="compile.aspect.acceptancetest">
+			<and>
+				<equals arg1="${has.acceptancetests}" arg2="true"/>
+				<equals arg1="${enable.aspects}" arg2="true"/>
+			</and>
+		</condition>
+		<condition property="compile.java.acceptancetest">
+			<and>
+				<equals arg1="${has.acceptancetests}" arg2="true"/>
+				<equals arg1="${enable.aspects}" arg2="false"/>
+			</and>
+		</condition>
+	</target>
+
+	<target name="init-java-paths" depends="init-dirs" unless="${enable.aspects}">
+		<path id="compile.classpath">
+			<path refid="global.compile.classpath"/>
+		</path>
+		
+		<path id="unittest.classpath">
+			<path refid="global.unittest.classpath"/>
+		</path>
+		
+		<path id="integrationtest.classpath">
+			<path refid="global.integrationtest.classpath"/>
+		</path>
+		
+		<path id="acceptancetest.classpath">
+			<path refid="global.acceptancetest.classpath"/>
+		</path>
+		
+		<path id="run.classpath">
+			<path refid="global.run.classpath"/>
+		</path>
+		
+		<path id="unittest.run.classpath">
+			<path refid="global.unittest.run.classpath"/>
+		</path>
+		
+		<path id="integrationtest.run.classpath">
+			<path refid="global.integrationtest.run.classpath"/>
+		</path>
+		
+		<path id="acceptancetest.run.classpath">
+			<path refid="global.acceptancetest.run.classpath"/>
+		</path>
+		
+	</target>
+
+	<target name="init-aspect-paths" depends="init-global-paths" if="${enable.aspects}">
+		<path id="compile.classpath">
+			<fileset dir="${lib.aspect.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<path refid="global.compile.classpath"/>
+		</path>
+
+		<path id="unittest.classpath">
+			<fileset dir="${lib.aspect.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<path refid="global.unittest.classpath"/>
+		</path>
+		
+		<path id="integrationtest.classpath">
+			<fileset dir="${lib.aspect.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<path refid="global.integrationtest.classpath"/>
+		</path>
+		
+		<path id="acceptancetest.classpath">
+			<fileset dir="${lib.aspect.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<path refid="global.acceptancetest.run.classpath"/>
+		</path>
+		
+		<path id="run.classpath">
+			<path refid="global.run.classpath"/>
+			<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		</path>
+
+		<path id="unittest.run.classpath">
+			<path refid="global.unittest.run.classpath"/>
+			<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		</path>
+		
+		<path id="integrationtest.run.classpath">
+			<path refid="global.integrationtest.run.classpath"/>
+			<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		</path>
+		
+		<path id="acceptancetest.run.classpath">
+			<path refid="global.acceptancetest.run.classpath"/>
+			<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
+		</path>
+	</target>
+
+	<target name="init-paths" depends="init-global-paths, init-java-paths, init-aspect-paths"/>
+	
+	<target name="init-reports" depends="init-dirs">
+		<!-- project report -->
+		<copy file="${global.report.html.dir}/project.html"
+			tofile="${report.dir}/index.html"
+		    overwrite="true">
+			<filterset>
+				<filter token="project.name" value="${ant.project.name}"/>
+				<filter token="timestamp" value="${timestamp.datetime}"/>
+				<filter token="report.junit.html.dir" value="${report.junit.html.dir}"/>
+				<filter token="report.coverage.html.dir" value="${report.coverage.html.dir}"/>
+				<filter token="report.jdepend.html.dir" value="${report.jdepend.html.dir}"/>
+				<filter token="report.dependency.html.dir" value="${report.dependency.html.dir}"/>
+				<filter token="report.pmd.html.dir" value="${report.pmd.html.dir}"/>
+				<filter token="report.findbugs.html.dir" value="${report.findbugs.html.dir}"/>
+				<!--filter token="report.checkstyle.html.dir" value="${report.checkstyle.html.dir}"/-->
+			</filterset>
+		</copy>
+		<copy file="${global.report.html.dir}/project.css"
+			tofile="${report.dir}/project.css"/>
+	</target>
+
+</project>

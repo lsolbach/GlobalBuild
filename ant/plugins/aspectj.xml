@@ -44,7 +44,7 @@
 	</path>
 	
 	<path id="global.aspectj.inpath">
-		<fileset dir="${lib.project.dir}">
+		<fileset dir="${lib.aspectin.dir}">
 			<include name="*.jar"/>
 		</fileset>
 	</path>
@@ -97,7 +97,7 @@
 	</path>
 
 	<path id="aspectj.acceptancetest.classpath">
-		<path refid="aspectj.integrationtest.classpath"/>
+		<path refid="global.aspectj.acceptancetest.aspectpath"/>
 		<pathelement location="${build.acceptancetest.dir}"/>
 	</path>
 

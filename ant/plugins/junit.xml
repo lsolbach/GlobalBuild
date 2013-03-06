@@ -1,33 +1,31 @@
 <project name="JUnitPlugin">
 
 	<property name="plugin.junit" value="true"/>
+	
+	<target name="junit-check">
+		<condition property="has.junittests">
+			<or>
+				<isset property="has.unittests"/>
+				<isset property="has.integrationtests"/>
+			</or>
+		</condition>
+	</target>
 
-	<target name="junit-init">
+	<target name="junit-init" depends="junit-check" if="has.junittests">
 		<mkdir dir="${report.junit.dir}"/>
 		<mkdir dir="${report.junit.html.dir}"/>
 	</target>
-
-	<target name="unittest-global" depends="compile, run-unittest"/>
 	
-	<target name="run-unittest" depends="junit-init" if="has.unittests">
-		<!-- copy non java source files to class directory -->
-		<copy todir="${build.unittest.dir}">
-			<fileset dir="${source.unittest.dir}" excludes="**/*.java,**/*.aj">
-			</fileset>
-		</copy>
-	
+	<target name="junit-run" depends="junit-init">	
 		<!-- perform tests -->
-		<junit fork="yes" forkmode="once" maxmemory="256m"
-			printsummary="false"
-			errorProperty="unittest.error"
-			failureProperty="unittest.error">
-			<!-- TOD: check classpath depending on enable.aspects -->
-			<classpath refid="unittest.run.classpath"/>
+		<junit fork="yes" forkmode="once" maxmemory="256m" errorProperty="unittest.error" failureProperty="unittest.error">
+			<!-- TODO: check classpath depending on enable.aspects -->
+			<classpath refid="junit.classpath"/>
 			<sysproperty key="base.dir" value="${basedir}"/>
 			<formatter type="brief" usefile="false"/>
 			<formatter type="xml"/>
 			<batchtest todir="${report.junit.dir}">
-				<fileset dir="${build.unittest.dir}" includes="**/*Test.class"
+				<fileset dir="${build.junit.dir}" includes="**/*Test.class"
 					excludes="junit/**/*Test.class,**/Abstract*.class"/>
 			</batchtest>
 		</junit>
@@ -46,9 +44,25 @@
 
 		<fail message="Unit tests failed. See reports for information" if="unittest.fail"/>
 	</target>
-	
+
+	<target name="run-unittest" depends="junit-init" if="has.unittests">
+		<antcall target="junit-run">
+			<param name="source.junit.dir" value="${source.unittest.dir}"/>
+			<param name="build.junit.dir" value="${build.unittest.dir}"/>
+			<reference torefid="junit.classpath" refid="unittest.run.classpath"/>
+		</antcall>
+	</target>
+
+	<target name="run-integrationtest" depends="junit-init" if="has.integrationtests">
+		<antcall target="junit-run">
+			<param name="source.junit.dir" value="${source.integrationtest.dir}"/>
+			<param name="build.junit.dir" value="${build.integrationtest.dir}"/>
+			<reference torefid="junit.classpath" refid="integrationtest.run.classpath"/>
+		</antcall>
+	</target>
+
+	<target name="unittest-global" depends="compile, run-unittest"/>	
 	<!-- Global integration tests -->
-	<target name="integrationtest" depends="compile, run-integrationtest"/>
-	<target name="run-integrationtest"  if="has.integrationtests"/>
+	<target name="integrationtest-global" depends="compile, run-integrationtest"/>
 
 </project>
