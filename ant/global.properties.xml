@@ -34,6 +34,7 @@
 	<property name="dev.repository" value="${dev.home.dir}/repositories/development"/>
 	<property name="release.repository" value="${dev.home.dir}/repositories/release"/>
 	<property name="3rdparty.repository" value="${dev.home.dir}/repositories/thirdparty"/>
+	<property name="maven.proxy.repository" value="${dev.home.dir}/repositories/repo1.maven.org"/>
 	<property name="maven.repository" value="http://repo1.maven.org/maven2"/>
 	
 	<!-- standard project directories -->

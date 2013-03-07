@@ -28,6 +28,12 @@
 			value="${release.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"
 			file="${release.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"/>
 		<available property="dep.src"
+			value="${maven.proxy.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"
+			file="${maven.proxy.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"/>
+		<available property="dep.src"
+			value="${maven.proxy.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"
+			file="${maven.proxy.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"/>
+		<available property="dep.src"
 			value="${3rdparty.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"
 			file="${3rdparty.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"/>
 		<available property="dep.src"

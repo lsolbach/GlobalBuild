@@ -4,7 +4,11 @@
 	
 	<target name="distribute-global" depends="distribute-dev"/>
 
-	<target name="distribute-release">
+	<target name="distribute-init">
+		<propertyregex property="module.projectpath" input="${module.project}" regexp="[.]" replace="/" global="true" defaultValue="${module.project}"/>
+	</target>
+	
+	<target name="distribute-release" depends="distribute-init">
 		<antcall target="distribute-artifacts">
 			<param name="dist.repository" value="${release.repository}"/>
 		</antcall>
@@ -13,14 +17,14 @@
 		</antcall>
 	</target>
 
-	<target name="distribute-dev">
+	<target name="distribute-dev" depends="distribute-init">
 		<antcall target="distribute-artifacts">
 			<param name="dist.repository" value="${dev.repository}"/>
 		</antcall>
 	</target>
 
 	<target name="distribute-artifacts">
-		<property name="artifact.dir" value="${dist.repository}/${module.group}/${ant.project.name}/${module.version}"/>
+		<property name="artifact.dir" value="${dist.repository}/${module.projectpath}/${ant.project.name}/${module.version}"/>
 		<mkdir dir="${artifact.dir}"/>
 		<copy toDir="${artifact.dir}">
 			<fileset dir="${dist.dir}" includes="*.jar"/>
@@ -36,7 +40,7 @@
 	</target>
 	
 	<target name="distribute-release-zip">
-		<property name="artifact.dir" value="${dist.repository}/${module.group}/${ant.project.name}/${module.version}"/>
+		<property name="artifact.dir" value="${dist.repository}/${module.projectpath}/${ant.project.name}/${module.version}"/>
 		<mkdir dir="${artifact.dir}"/>
 		<zip destfile="${dist.dir}/${ant.project.name}-${module.version}.zip">
 			<fileset dir="${dist.dir}" includes="*.jar"/>
