@@ -36,7 +36,6 @@
 	<property name="3rdparty.repository" value="${dev.home.dir}/repositories/thirdparty"/>
 	<property name="maven.repository" value="http://repo1.maven.org/maven2"/>
 	
-	
 	<!-- standard project directories -->
 	<property name="project.work.dir" location="${basedir}"/>
 	<property name="source.dir" location="${project.work.dir}/src"/>
