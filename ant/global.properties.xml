@@ -47,7 +47,7 @@
 	<property name="lib.dir" location="${project.work.dir}/lib"/>
 	<property name="lib.dev.dir" location="${lib.dir}/dev"/>
 	<property name="lib.aspectin.dir" location="${lib.dir}/aspectin"/>
-	<property name="lib.aspect.dir" location="${lib.dir}/aspects"/>
+	<property name="lib.aspect.dir" location="${lib.dir}/aspect"/>
 	<property name="lib.runtime.dir" location="${lib.dir}/runtime"/>
 	<property name="cfg.dir" location="${project.work.dir}/config"/>
 	<property name="build.dir" location="${project.work.dir}/build"/>

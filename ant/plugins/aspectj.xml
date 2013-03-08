@@ -13,15 +13,13 @@
 
 	<path id="global.aspectj.classpath">
 		<path refid="global.compile.classpath"/>
-		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
-		<!--fileset dir="${lib.aspect.dir}">
+		<fileset dir="${lib.aspect.dir}">
 			<include name="*.jar"/>
-		</fileset-->
+		</fileset>
 	</path>
 	
 	<path id="global.aspectj.unittest.classpath">
 		<path refid="global.unittest.classpath"/>
-		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
 		<fileset dir="${lib.aspect.dir}">
 			<include name="*.jar"/>
 		</fileset>
@@ -29,7 +27,6 @@
 	
 	<path id="global.aspectj.integrationtest.classpath">
 		<path refid="global.integrationtest.classpath"/>
-		<pathelement location="${aspectj.dir}/lib/aspectjrt.jar"/>
 		<fileset dir="${lib.aspect.dir}">
 			<include name="*.jar"/>
 		</fileset>
