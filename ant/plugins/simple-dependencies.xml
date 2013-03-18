@@ -20,7 +20,7 @@
 		<echo message="Project: ${dep.project}, Module: ${dep.module}, Version: ${dep.version}, Type: ${dep.type}, Artifact: ${dep.artifact}, Extension: ${dep.extension}"/>
 		<propertyregex property="dep.prj" input="${dep.project}" regexp="[.]" replace="/" global="true" defaultValue="${dep.project}"/>
 
-		<!-- repository search path: release, thirdparty, development -->
+		<!-- repository search path: release, maven, thirdparty, development -->
 		<available property="dep.src"
 			value="${release.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"
 			file="${release.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}.${dep.extension}"/>
@@ -47,6 +47,7 @@
 			file="${dev.repository}/${dep.prj}/${dep.module}/${dep.version}/${dep.artifact}-${dep.version}.${dep.extension}"/>
 		
 		<!-- TODO copy or unzip depending on type? -->
+		<!-- TODO resource from local cache or url? -->
 		<copy file="${dep.src}"
 			tofile="${lib.dir}/${dep.type}/${dep.module}.${dep.extension}" failonerror="false"/>
 
@@ -58,10 +59,22 @@
 		</copy-->
 	</target>
 	
+    <target name="unzip-from-file" >
+    	<unzip src="${source.file}" dest="${target.dir}"/>
+    </target>
+
+    <target name="unzip-from-url" >
+            
+    </target>
+
+	<target name="copy-from-file">
+		<copy file="${source.file}" tofile="${target.file}" failonerror="false"/>
+	</target>
+
 	<target name="copy-from-url">
 		<copy tofile="${target.file}" failonerror="false">
 			<resources>
-				<url url="${src.repository}/${src.file}"/>
+				<url url="${src.repository}/${source.file}"/>
 			</resources>
 		</copy>
 	</target>
