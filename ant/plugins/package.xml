@@ -80,7 +80,7 @@
 		<antcall target="package-manifest">
 			<param name="manifest.dir" value="${build.unittest.dir}"/>
 		</antcall>
-		<jar destfile="${dist.dir}/${ant.project.name}UnitTest.jar"
+		<jar destfile="${dist.dir}/${ant.project.name}Unittest.jar"
 			manifest="${build.unittest.dir}/MANIFEST.MF"
 			index="true">
 			<fileset dir="${build.unittest.dir}"/>
@@ -91,7 +91,7 @@
 		<antcall target="package-manifest">
 			<param name="manifest.dir" value="${build.integrationtest.dir}"/>
 		</antcall>
-		<jar destfile="${dist.dir}/${ant.project.name}IntegrationTest.jar"
+		<jar destfile="${dist.dir}/${ant.project.name}Integrationtest.jar"
 			manifest="${build.integrationtest.dir}/MANIFEST.MF"
 			index="true">
 			<fileset dir="${build.integrationtest.dir}"/>
@@ -102,7 +102,7 @@
 		<antcall target="package-manifest">
 			<param name="manifest.dir" value="${build.fittest.dir}"/>
 		</antcall>
-		<jar destfile="${dist.dir}/${ant.project.name}FitTest.jar"
+		<jar destfile="${dist.dir}/${ant.project.name}Fittest.jar"
 			manifest="${build.fittest.dir}/MANIFEST.MF"
 			index="true">
 			<fileset dir="${build.fittest.dir}"/>
