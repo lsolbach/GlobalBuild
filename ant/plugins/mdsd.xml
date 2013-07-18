@@ -28,7 +28,7 @@
 
 	<target name="generate-init" if="${enable.generation}">
 		<mkdir dir="${generate.dir}"/>
-		<mkdir dir="${backup.dir}"/>		
+		<mkdir dir="${backup.dir}"/>
 		<delete>
 			<fileset dir="${backup.dir}"/>
 		</delete>
