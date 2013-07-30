@@ -27,10 +27,10 @@ Code Repository
 History
 -------
 
-Version 1.0.1 (--.--.2013)
+Version 1.0.1 (30.07.2013)
 --------------------------
 * updated generator plugin and libraries
 
-Version 1.0.0 (--.--.2013)
+Version 1.0.0 (06.01.2013)
 --------------------------
 * initial github import
