@@ -2,6 +2,7 @@
 REM   Opens a shell under windows and sets the environment for the build 
 
 REM   set global build home path
+
 if defined DEV_HOME (echo Using predefined DEV_HOME %DEV_HOME%) else (set DEV_HOME=d:\dev)
 set GLOBAL_BUILD_HOME=%~dp0
 if %GLOBAL_BUILD_HOME:~-1%==\ set GLOBAL_BUILD_HOME=%GLOBAL_BUILD_HOME:~0,-1% 

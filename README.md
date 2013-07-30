@@ -1,8 +1,8 @@
 GlobalBuild
 ===========
 
-The GlobalBuild is an ant based build system with build plugins for java, aspectj and
-clojure projects.
+The GlobalBuild is an ant based build system with plugins for Java, AspectJ and
+Clojure projects.
 
 Author/Project Lead
 -------------------

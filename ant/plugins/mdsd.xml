@@ -509,7 +509,7 @@
 					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,presentation/config/webflow"
 					extension="xml"
 					subdir="META-INF/resources"
-					userSection="PA"
+					protectedArea="PA"
 					stereotype="flow">
 				</stateMachineGenerator>
 			</generatorGroup>
@@ -566,7 +566,7 @@
 					imports="lib,model/lib,xml/lib,java/lib,common/model/lib,presentation/config/webflow"
 					extension="xml"
 					subdir="WebContent/WEB-INF"
-					userSection="PA"
+					protectedArea="PA"
 					stereotype="flow">
 				</stateMachineGenerator>
 			</generatorGroup>
