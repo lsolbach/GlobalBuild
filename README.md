@@ -18,7 +18,7 @@ License
 
 Copyright
 ---------
-© 2002-2012 Ludger Solbach
+© 2002-2013 Ludger Solbach
 
 Code Repository
 ---------------
@@ -27,4 +27,10 @@ Code Repository
 History
 -------
 
-Version 0.1.0 (--.--.201-)
+Version 1.0.1 (--.--.2013)
+--------------------------
+* updated generator plugin and libraries
+
+Version 1.0.0 (--.--.2013)
+--------------------------
+* initial github import
