@@ -44,11 +44,6 @@
 	<property name="source.integrationtest.dir" location="${project.work.dir}/integrationtest"/>
 	<property name="source.fittest.dir" location="${project.work.dir}/fittest"/>
 	<property name="web.dir" location="${project.work.dir}/WebContent"/>	
-	<property name="lib.dir" location="${project.work.dir}/lib"/>
-	<property name="lib.dev.dir" location="${lib.dir}/dev"/>
-	<property name="lib.aspectin.dir" location="${lib.dir}/aspectin"/>
-	<property name="lib.aspect.dir" location="${lib.dir}/aspect"/>
-	<property name="lib.runtime.dir" location="${lib.dir}/runtime"/>
 	<property name="cfg.dir" location="${project.work.dir}/config"/>
 	<property name="build.dir" location="${project.work.dir}/build"/>
 	<property name="build.classes.dir" location="${build.dir}/classes"/>
@@ -58,7 +53,12 @@
 	<property name="build.instrumented.dir" location="${build.dir}/instrumented"/>
 	<property name="build.temp.dir" location="${build.dir}/temp"/>
 	<property name="build.data.dir" value="${build.dir}/data"/>
-	<property name="dist.dir" location="${project.work.dir}/dist"/>
+	<property name="lib.dir" location="${build.dir}/lib"/>
+	<property name="lib.dev.dir" location="${lib.dir}/dev"/>
+	<property name="lib.aspectin.dir" location="${lib.dir}/aspectin"/>
+	<property name="lib.aspect.dir" location="${lib.dir}/aspect"/>
+	<property name="lib.runtime.dir" location="${lib.dir}/runtime"/>
+	<property name="dist.dir" location="${build.dir}/dist"/>
 	<property name="report.dir" location="${build.dir}/report"/>
 	<property name="report.junit.dir" location="${report.dir}/junit"/>
 	<property name="report.junit.html.dir" location="${report.junit.dir}/html"/>
