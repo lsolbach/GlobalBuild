@@ -5,6 +5,11 @@
 # set build os
 export BUILD_OS="linux"
 
+# set DEV_HOME if not already set
+if [ -n "${DEV_HOME:-x}" ]; then
+	export DEV_HOME="$HOME/devel"
+fi
+
 # set java home
 if [ -n "${JAVA_HOME:-x}" ]; then
 	export JAVA_HOME="$DEV_HOME/tools/jdk"

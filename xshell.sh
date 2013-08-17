@@ -1,5 +1,5 @@
 #!/bin/sh
-# buildshell.sh
+# xshell.sh
 # sets the environment for the build
 
 # set GLOBAL_BUILD_HOME to script path
@@ -13,11 +13,6 @@ GLOBAL_BUILD_HOME=`pwd`;
 popd  > /dev/null
 export GLOBAL_BUILD_HOME
 export USER_BUILD_HOME="$HOME/.GlobalBuild"
-
-# set DEV_HOME if not already set
-if [ -n "${DEV_HOME:-x}" ]; then
-	export DEV_HOME="$HOME/devel"
-fi
 
 # load environment
 if [ -x $GLOBAL_BUILD_HOME/env/linux/env.sh ]; then
