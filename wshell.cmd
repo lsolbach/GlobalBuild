@@ -5,7 +5,7 @@ REM   set global build home path
 
 if defined DEV_HOME (echo Using predefined DEV_HOME %DEV_HOME%) else (set DEV_HOME=d:\dev)
 set GLOBAL_BUILD_HOME=%~dp0
-if %GLOBAL_BUILD_HOME:~-1%==\ set GLOBAL_BUILD_HOME=%GLOBAL_BUILD_HOME:~0,-1% 
+if %GLOBAL_BUILD_HOME:~-1%==\ set GLOBAL_BUILD_HOME=%GLOBAL_BUILD_HOME:~0,-1%
 set USER_BUILD_HOME=%HOME%\GlobalBuild
 	
 if not exist "%GLOBAL_BUILD_HOME%\env\windows\env.cmd" goto noenv
