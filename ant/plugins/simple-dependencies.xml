@@ -49,7 +49,7 @@
 		<!-- TODO copy or unzip depending on type? -->
 		<!-- TODO resource from local cache or url? -->
 		<copy file="${dep.src}"
-			tofile="${lib.dir}/${dep.type}/${dep.module}.${dep.extension}" failonerror="false"/>
+			tofile="${lib.dir}/${dep.type}/${dep.artifact}.${dep.extension}" failonerror="false"/>
 
 		<!-- TODO  -->
 		<!--copy tofile="${lib.dir}/${dep.type}/${dep.module}.${dep.extension}" failonerror="false">
